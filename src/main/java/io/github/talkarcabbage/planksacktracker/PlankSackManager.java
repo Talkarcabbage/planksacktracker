@@ -279,7 +279,7 @@ public class PlankSackManager {
             return; //Left open-ended in case we need to cover 0-xp builds in the future
         }
         if (pendingBuildQueue.isEmpty()) {
-            if (buildEvent.getXPDrop().multiply(Utils.getCurrentXPModifier(plugin)).roughEquals(Constants.MAHOGANY_HOMES_STEEL_REPAIR_XP)) {
+            if (buildEvent.getXPDrop().roughEquals(Constants.MAHOGANY_HOMES_STEEL_REPAIR_XP.multiply(Utils.getCurrentXPModifier(plugin)))) {
                 // Range repair, probably.
                 return;
             }
