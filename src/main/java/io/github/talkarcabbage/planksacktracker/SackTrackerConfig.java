@@ -17,6 +17,7 @@ public interface SackTrackerConfig extends Config {
     String TEXT_COLOR = "textcolor";
     String PLANK_ICONS = "plankicons";
     String PLANK_NAMES = "planknames";
+    String DISPLAY_ZERO = "displayzerowhenempty";
     String OVERWRITE_PLUGIN = "overwritepsplugin";
 
     @ConfigItem(
@@ -61,6 +62,14 @@ public interface SackTrackerConfig extends Config {
         return OverlayTextType.FULL;
     }
 
-
+    @ConfigItem(
+            keyName = DISPLAY_ZERO,
+            name = "Display zero when empty",
+            description =  "If true, displays a zero on the overlay when the sack is empty.",
+            position = 5
+    )
+    default boolean displayZeroWhenEmpty() {
+        return true;
+    }
 
 }

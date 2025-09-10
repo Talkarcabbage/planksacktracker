@@ -46,7 +46,9 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         if (manager.shouldDisplayQuestionMark()) {
             drawString(graphics, "?",startingDrawX+8,startingDrawY);
         }
-        else {
+        else if (manager.getCurrentPlankSack().isEmpty() && config.displayZeroWhenEmpty()) {
+            drawString(graphics, "0",startingDrawX+8,startingDrawY);
+        } else {
             if (config.showOverlayIcons()) {
                 renderWithIcons(graphics, new Point(startingDrawX, startingDrawY));
             } else {
