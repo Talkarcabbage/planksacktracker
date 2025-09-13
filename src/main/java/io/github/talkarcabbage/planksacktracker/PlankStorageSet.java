@@ -178,6 +178,8 @@ public class PlankStorageSet {
      * storage are negative.
      * @return
      */
+
+
     public boolean hasNegativeValues() {
         return (planks<0||oaks<0||teaks<0||mahoganies<0);
     }

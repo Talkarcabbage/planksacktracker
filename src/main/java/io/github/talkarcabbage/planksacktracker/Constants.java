@@ -179,5 +179,21 @@ public final class Constants {
     public static final String MENU_REPAIR_TEXT = "Repair";
     public static final String MENU_SAWMILL_MAKE = "Make";
 
+    public static final int SCRIPT_BUILD_MENU_ENTRY_CLICKED = 1405;
+    public static final int SCRIPT_ENTRY_ADDED_TO_BUILD_MENU = 1404;
+    public static final int SCRIPT_KEYBIND_PRESS_BUILD_MENU = 1632;
+    /**
+     * This event fires, twice, for every keybind in the menu
+     */
+    public static final int SCRIPT_SKILL_MENU_KEYBIND_PREFIRE = 2051;
+    /**
+     * This fires when you click an option in the UI, I think?
+     */
+    public static final int SCRIPT_SKILL_MENU_UI_PREFIRE = 2050;
+    /**
+     * This event fires when you choose an item in the skilling menu (eg sawmill)
+     */
+    public static final int SCRIPT_SKILL_MENU_ACTION_CHOSEN = 2052;
+    public static final int SCRIPT_CONFIRM_DIALOG_FOR_PLANK_MAKE = 58;
 
 }

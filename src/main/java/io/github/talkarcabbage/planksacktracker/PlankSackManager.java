@@ -72,13 +72,13 @@ public class PlankSackManager {
         this.plugin = plugin;
     }
 
-    public void setExpectingPlankSackInventoryChange(boolean expecting, PlankStorageSet preInventory) {
+    public void setExpectingPlankSackInventoryChangeViaClickingSack(boolean expecting, PlankStorageSet preInventory) {
         preBuildInventoryContents = preInventory;
         expectingPlankSackInventoryChange=expecting;
         expectingPlankSackInventoryChangeTimestamp = plugin.client.getTickCount();
     }
 
-    public void setExpectingSawmillInventoryChange(boolean expecting, PlankStorageSet expectedIncoming) {
+    public void setExpectingSawmillInventoryChange(PlankStorageSet expectedIncoming) {
         this.expectedSawmillResults = expectedIncoming;
         this.expectingSawmillInventoryChange = true;
         this.expectingSawmillInventoryChangeTimestamp = plugin.client.getTickCount();
@@ -367,10 +367,12 @@ public class PlankSackManager {
 
     /**
      * Tries to add to planksack and returns the leftovers
+     * ONLY ACCEPTS A MONO-TYPE TO ADD.
      * @param contentUpdate
      * @return
      */
     private PlankStorageSet addToPlankSackAsFits(PlankStorageSet contentUpdate) {
+        if (contentUpdate.isEmpty()) return contentUpdate;
         if (contentUpdate.isMonoContent()) {
             var space = currentPlankSack.getRemainingSackSpace(); //Doubles as how many to add
             var planksToAdd = contentUpdate.getTotalPlanks();
@@ -425,12 +427,15 @@ public class PlankSackManager {
      */
     public void processInventoryChange(PlankStorageSet newInventory) {
         var changes = preBuildInventoryContents.subtract(newInventory);
-        processSackUpdate(changes);
-        var timeDiff = plugin.client.getTickCount()-expectingSawmillInventoryChangeTimestamp;
-        if (expectingSawmillInventoryChange && timeDiff<5) {
+        log.info("INV update: {} | {} | {} | {}", changes.toPrintableString(), isExpectingPlankSackInventoryChange(), expectingSawmillInventoryChange, expectedSawmillResults.toPrintableString());
+
+        processSackUpdate(changes); // Process inventory update if clicked plank sack
+
+        var sawmillTimeDiff = plugin.client.getTickCount()-expectingSawmillInventoryChangeTimestamp;
+        if (expectingSawmillInventoryChange && sawmillTimeDiff<5) {
             addToPlankSackAsFits(expectedSawmillResults);
             expectingSawmillInventoryChange = false;
-        } else if (timeDiff>=5) {
+        } else if (sawmillTimeDiff>=5) {
             expectingSawmillInventoryChange=false;
         }
 
@@ -442,7 +447,10 @@ public class PlankSackManager {
      * @param modifications
      */
     public void processSackUpdate(PlankStorageSet modifications) {
-        if (plugin.client.getTickCount()-expectingPlankSackInventoryChangeTimestamp>5) { //A long time has passed since that click
+        if (plugin.client.getTickCount()-expectingPlankSackInventoryChangeTimestamp>5) {
+            // A long time has passed since that click so we probably aren't still waiting for
+            // an inventory update from the plank sack click
+
         } else {
             if (expectingPlankSackInventoryChange) {
                 setPlankSackContents(currentPlankSack.add(modifications));
