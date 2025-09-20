@@ -91,9 +91,13 @@ public class PlankSackManager {
     public void updateConfigPlankSackContents() {
         if (plankSackContentsNeedManualUpdate) {
             plugin.configManager.setRSProfileConfiguration(PLUGIN_GROUP_ID, SackTrackerConfig.PLANK_SACK_TRACKER_CONFIG_SACK_CONTENTS_KEY, new ArrayList<Integer>(0));
+            if (plugin.getConfig().replacePlankSackPlugin()) {
+                ExternalInteractions.setUnknownDataShareReplacePlankSack(plugin.configManager);
+            }
             return;
         }
-        ExternalInteractions.setDataShareConfigContents(plugin.configManager, currentPlankSack);
+        ExternalInteractions.setDataShareConfigContents(plugin.configManager, currentPlankSack, plugin);
+        ExternalInteractions.setDataShareReplacePlankSack(plugin.configManager, currentPlankSack, plugin);
     }
 
     /**

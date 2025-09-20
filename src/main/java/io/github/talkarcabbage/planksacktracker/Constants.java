@@ -170,6 +170,9 @@ public final class Constants {
     public static final String MAHOGANY_HOMES_PLUGIN_GROUP_ID = "MahoganyHomes";
     public static final String MAHOGANY_HOMES_PLUGIN_TIER_KEY = "currentTier";
 
+    public static final String PLANK_SACK_PLUGIN_GROUP_ID = "planksack";
+    public static final String PLANK_SACK_PLUGIN_CONTENTS_KEY = "plankcount";
+
     // Menu text labels for clicking on interactions
     public static final String TALK_MENU_OPTION = "Talk-to";
     public static final String CONTINUE_MENU_OPTION = "Continue";

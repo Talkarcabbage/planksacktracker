@@ -2,6 +2,7 @@ package io.github.talkarcabbage.planksacktracker;
 
 import com.google.inject.Provides;
 import io.github.talkarcabbage.planksacktracker.plankcost.*;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
@@ -41,6 +42,7 @@ public class SackTrackerPlugin extends Plugin {
     @Inject
     protected Client client;
     @Inject
+    @Getter
     private SackTrackerConfig config;
     @Inject
     private OverlayManager overlayManager;
@@ -69,6 +71,7 @@ public class SackTrackerPlugin extends Plugin {
 
     @Override
     protected void shutDown() throws Exception {
+        ExternalInteractions.resetDataShares(configManager, this);
         overlayManager.remove(overlay);
     }
 

@@ -27,13 +27,27 @@ public class ExternalInteractions {
                 return PlankTier.UNKNOWN;
         }
     }
-    public static void setDataShareConfigContents(ConfigManager manager, PlankStorageSet currentPlankSack) {
+    public static void setDataShareConfigContents(ConfigManager manager, PlankStorageSet currentPlankSack, SackTrackerPlugin plugin) {
         var list = new ArrayList<Integer>(4);
         list.add(currentPlankSack.getPlanks());
         list.add(currentPlankSack.getOaks());
         list.add(currentPlankSack.getTeaks());
         list.add(currentPlankSack.getMahoganies());
         manager.setRSProfileConfiguration(PLUGIN_GROUP_ID, SackTrackerConfig.PLANK_SACK_TRACKER_CONFIG_SACK_CONTENTS_KEY, list);
-
     }
+    public static void setDataShareReplacePlankSack(ConfigManager manager, PlankStorageSet currentPlankSack, SackTrackerPlugin plugin) {
+        if (plugin.getConfig().replacePlankSackPlugin()) {
+            manager.setRSProfileConfiguration(Constants.PLANK_SACK_PLUGIN_GROUP_ID, Constants.PLANK_SACK_PLUGIN_CONTENTS_KEY, currentPlankSack.getTotalPlanks());
+        }
+    }
+    public static void setUnknownDataShareReplacePlankSack(ConfigManager manager) {
+        manager.setRSProfileConfiguration(Constants.PLANK_SACK_PLUGIN_GROUP_ID, Constants.PLANK_SACK_PLUGIN_CONTENTS_KEY, 0);
+    }
+    public static void resetDataShares(ConfigManager manager, SackTrackerPlugin plugin) {
+        if (plugin.getConfig().replacePlankSackPlugin()) {
+            manager.unsetRSProfileConfiguration(Constants.PLANK_SACK_PLUGIN_GROUP_ID, Constants.PLANK_SACK_PLUGIN_CONTENTS_KEY);
+        }
+        manager.unsetRSProfileConfiguration(PLUGIN_GROUP_ID, SackTrackerConfig.PLANK_SACK_TRACKER_CONFIG_SACK_CONTENTS_KEY);
+    }
+
 }

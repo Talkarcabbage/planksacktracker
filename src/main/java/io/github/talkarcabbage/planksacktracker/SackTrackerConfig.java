@@ -66,10 +66,26 @@ public interface SackTrackerConfig extends Config {
             keyName = DISPLAY_ZERO,
             name = "Display zero when empty",
             description =  "If true, displays a zero on the overlay when the sack is empty.",
-            position = 5
+            position = 6
     )
     default boolean displayZeroWhenEmpty() {
         return true;
+    }
+
+    @ConfigItem(
+            keyName = OVERWRITE_PLUGIN,
+            name = "Override Plank Sack MH Data",
+            description =
+                    "[Experimental]<br>" +
+                    "If checked, the plugin will override the data<br>" +
+                    "that the Plank Sack plugin [by Enriath] would normally provide <br>" +
+                    "that is used by plugins such as mahogany homes. <br><br>" +
+                    "Be aware, it shares ALL planks similarly to how the other plugin would,<br>" +
+                    "so a plank sack with multiple types of planks may not give you the desired results!",
+            position = 8
+    )
+    default boolean replacePlankSackPlugin() {
+        return false;
     }
 
 }
