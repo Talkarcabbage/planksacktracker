@@ -4,12 +4,27 @@ import io.github.talkarcabbage.planksacktracker.plankcost.XP;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
+import net.runelite.client.util.ColorUtil;
 
+import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
 public class Utils {
+
+    public static String br() {
+        return "</br>";
+    }
+
+    public static String white(String text) {
+        return ColorUtil.wrapWithColorTag(text, Color.WHITE);
+    }
+
+    public static String yellow(String text) {
+        return ColorUtil.wrapWithColorTag(text, Color.YELLOW);
+    }
+
     private static final String SACK_LOG_SEPARATOR="\u00A0";
     public static boolean checkWithinRange(int value, int expectedValue, int maxDifference) {
         int difference = Math.abs(expectedValue-value);
@@ -53,7 +68,8 @@ public class Utils {
         var xpOak = new XP(Constants.OAK_MAHOGANY_HOMES_XP.getServerXPValue()*modifier, true);
         var xpTeak = new XP(Constants.TEAK_MAHOGANY_HOMES_XP.getServerXPValue()*modifier, true);
         var xpMahogany = new XP(Constants.MAHOGANY_MAHOGANY_HOMES_XP.getServerXPValue()*modifier, true);
-//TODO this maybe doesn't work quite right
+
+        //TODO this maybe doesn't work quite right
         return new PlankStorageSet(
         getPlanksFromXPIfMatches(xpPlank, givenXP),
         getPlanksFromXPIfMatches(xpOak, givenXP),

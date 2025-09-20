@@ -4,7 +4,7 @@ import io.github.talkarcabbage.planksacktracker.PlankStorageSet;
 
 import static io.github.talkarcabbage.planksacktracker.Constants.*;
 
-public class MahoganyHomesRepairQueueEvent implements PlankBuildQueueEvent {
+public class MahoganyHomesRepairQueueEvent implements GenericPlankBuildQueueEvent {
 
     PlankStorageSet cost;
     private final int currentTick;

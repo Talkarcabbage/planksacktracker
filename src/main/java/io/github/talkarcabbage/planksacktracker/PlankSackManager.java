@@ -21,7 +21,7 @@ public class PlankSackManager {
     private final SackTrackerPlugin plugin;
 
     private PlankStorageSet preBuildInventoryContents = new PlankStorageSet(0,0,0,0);
-    private final LinkedList<PlankBuildQueueEvent> pendingBuildQueue = new LinkedList<>();
+    private final LinkedList<GenericPlankBuildQueueEvent> pendingBuildQueue = new LinkedList<>();
 
     @Getter
     private PlankStorageSet currentPlankSack = new PlankStorageSet(0,0,0,0);
@@ -153,7 +153,7 @@ public class PlankSackManager {
      * build lines up with what we expect it to cost vs with our xp drop.
      * @param queueEvent
      */
-    public void addBuildEventToQueue(PlankBuildQueueEvent queueEvent) {
+    public void addBuildEventToQueue(GenericPlankBuildQueueEvent queueEvent) {
         pendingBuildQueue.add(queueEvent);
     }
 
@@ -241,7 +241,7 @@ public class PlankSackManager {
      */
     public void runQueuedBuild(GenericBuildEvent buildEvent) {
         PlankStorageSet newInven = buildEvent.getInventoryAfterBuild();
-        PlankBuildQueueEvent mostRecentMatchingQueueEvent;
+        GenericPlankBuildQueueEvent mostRecentMatchingQueueEvent;
 
         // If the pending queue is empty, we're either...
         // A: Dealing with a mahogany homes event that couldn't figure out the right planks, or
@@ -272,7 +272,7 @@ public class PlankSackManager {
 
     private void processMahoganyHomesBuildEvent(GenericBuildEvent buildEvent) {
         PlankStorageSet newInven = buildEvent.getInventoryAfterBuild();
-        PlankBuildQueueEvent mostRecentMatchingQueueEvent;
+        GenericPlankBuildQueueEvent mostRecentMatchingQueueEvent;
         boolean xpMatches = false;
 
         if (buildEvent.getXPDrop().isZero()) {
@@ -337,7 +337,7 @@ public class PlankSackManager {
     }
 
     // The meat and butter part of a build using up planks
-    private void consumePlanksForBuild(PlankStorageSet newInventory, PlankBuildQueueEvent queuedEvent) {
+    private void consumePlanksForBuild(PlankStorageSet newInventory, GenericPlankBuildQueueEvent queuedEvent) {
         var planksFromSack = PlankStorageSet.emptySet();
         var planksUsedFromInv = preBuildInventoryContents.subtract(newInventory);
         planksFromSack = queuedEvent.getPlankCost().subtract(planksUsedFromInv);

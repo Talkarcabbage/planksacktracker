@@ -7,6 +7,8 @@ import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.OverlayUtil;
 import net.runelite.client.ui.overlay.WidgetItemOverlay;
+import net.runelite.client.ui.overlay.tooltip.Tooltip;
+import net.runelite.client.ui.overlay.tooltip.TooltipManager;
 import net.runelite.client.util.ImageUtil;
 
 import java.awt.*;
@@ -21,10 +23,14 @@ public class PlankSackOverlay extends WidgetItemOverlay {
     private BufferedImage oakImage;
     private BufferedImage teakImage;
     private BufferedImage mahoganyImage;
+    private SackTrackerPlugin trackerPlugin;
 
     private boolean overlayIconsWorking = false;
 
-    public PlankSackOverlay(PlankSackManager sackManager, SackTrackerConfig config) {
+    TooltipManager tooltipManager;
+
+    public PlankSackOverlay(SackTrackerPlugin plugin, PlankSackManager sackManager, SackTrackerConfig config, TooltipManager tooltipManager) {
+        this.trackerPlugin = plugin;
         this.config = config;
         this.manager = sackManager;
         showOnInventory();
@@ -35,18 +41,20 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         if (Utils.allNotNull(plankImage, oakImage, teakImage, mahoganyImage)) {
             overlayIconsWorking = true;
         }
+        this.tooltipManager = tooltipManager;
     }
 
     @Override
     public void renderItemOverlay(Graphics2D graphics, int itemId, WidgetItem widgetItem) {
         if (itemId!= ItemID.PLANK_SACK) return;
+        var currentPlankSack = manager.getCurrentPlankSack();
         graphics.setFont(FontManager.getRunescapeSmallFont());
         int startingDrawX = widgetItem.getCanvasLocation().getX();
         int startingDrawY = widgetItem.getCanvasLocation().getY() + 10;
         if (manager.shouldDisplayQuestionMark()) {
             drawString(graphics, "?",startingDrawX+8,startingDrawY);
         }
-        else if (manager.getCurrentPlankSack().isEmpty() && config.displayZeroWhenEmpty()) {
+        else if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
             drawString(graphics, "0",startingDrawX+8,startingDrawY);
         } else {
             if (config.showOverlayIcons()) {
@@ -55,6 +63,46 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                 renderWithoutIcons(graphics, new Point(startingDrawX, startingDrawY));
             }
         }
+        if (isHovered(widgetItem, trackerPlugin.client.getMouseCanvasPosition())) {
+            renderTooltip(graphics, itemId, widgetItem);
+        }
+    }
+
+    private void renderTooltip(Graphics2D graphics, int itemId, WidgetItem widgetItem) {
+        var currentPlankSack = manager.getCurrentPlankSack();
+        var brLength = 0;
+        StringBuilder tb = new StringBuilder();
+
+        if (manager.shouldDisplayQuestionMark()) {
+            tooltipManager.add(new Tooltip("The plank sack contents are</br>currently unknown, check it!"));
+            return;
+        }
+        if (currentPlankSack.isEmpty()) {
+            tooltipManager.add(new Tooltip("Empty!"));
+            return;
+        }
+
+        tb.append(currentPlankSack.getPlanks()>0?getOverlayTextFull(PlankTier.PLANK, currentPlankSack)+"\n":"");
+        if (tb.length()>brLength) {
+            tb.append(Utils.br());
+            brLength = tb.length();
+        }
+        tb.append(currentPlankSack.getOaks()>0?getOverlayTextFull(PlankTier.OAK, currentPlankSack)+"\n":"");
+        if (tb.length()>brLength) {
+            tb.append(Utils.br());
+            brLength = tb.length();
+        }
+        tb.append(currentPlankSack.getTeaks()>0?getOverlayTextFull(PlankTier.TEAK, currentPlankSack)+"\n":"");
+        if (tb.length()>brLength) {
+            tb.append(Utils.br());
+            brLength = tb.length();
+        }
+        tb.append(currentPlankSack.getMahoganies()>0?getOverlayTextFull(PlankTier.MAHOGANY, currentPlankSack)+"\n":"");
+        tooltipManager.add(new Tooltip(tb.toString()));
+    }
+
+    private boolean isHovered(WidgetItem widgetItem, Point mousePosition) {
+        return (widgetItem.getCanvasBounds().contains(mousePosition.getX(), mousePosition.getY()));
     }
 
     private void renderWithIcons(Graphics2D graphics, Point startingXY) {
@@ -104,6 +152,27 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             OverlayUtil.renderTextLocation(graphics, new Point(x, y), getOverlayTextByConfig(PlankTier.MAHOGANY, currentSack), config.textColor());
         }
     }
+
+    private String getOverlayTextFull(PlankTier tier, PlankStorageSet storage) {
+
+        switch (tier) {
+            case PLANK:
+                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Basic planks");
+            case OAK:
+                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Oak planks");
+            case TEAK:
+                return Utils.white(padTwo(storage.getTierAmount(tier)))  + Utils.yellow(" Teak planks");
+            case MAHOGANY:
+                return Utils.white(padTwo(storage.getTierAmount(tier)))  + Utils.yellow(" Mahogany planks");
+        }
+        return "";
+    }
+
+    private String padTwo(int number) {
+        if (number<9) return number+" ";
+        return number+"";
+    }
+
     private String getOverlayTextByConfig(PlankTier tier, PlankStorageSet storage) {
         switch (config.textType()) {
             case NONE:
@@ -133,8 +202,6 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         }
         return "";
     }
-
-
 
     private void drawString(Graphics2D graphics, String text, int x, int y) {
         graphics.setColor(Color.WHITE);

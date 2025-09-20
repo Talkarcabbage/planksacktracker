@@ -13,6 +13,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.ui.overlay.tooltip.TooltipManager;
 
 import javax.inject.Inject;
 
@@ -49,12 +50,15 @@ public class SackTrackerPlugin extends Plugin {
     private PlankSackOverlay overlay = null;
     private ChatMessageManager chatManager = null;
 
+    @Inject
+    private TooltipManager tooltipManager;
+
     public static final String PLUGIN_GROUP_ID = "planksacktracker";
 
     @Override
     protected void startUp() throws Exception {
         sackManager = new PlankSackManager(this);
-        overlay = new PlankSackOverlay(sackManager, config);
+        overlay = new PlankSackOverlay(this, sackManager, config, tooltipManager );
         overlayManager.add(overlay);
         chatManager = new ChatMessageManager(this);
     }

@@ -2,7 +2,7 @@ package io.github.talkarcabbage.planksacktracker.plankcost;
 
 import io.github.talkarcabbage.planksacktracker.PlankStorageSet;
 
-public class BuildMenuBuildQueueEvent implements PlankBuildQueueEvent {
+public class BuildMenuBuildQueueEvent implements GenericPlankBuildQueueEvent {
 
     private final int currentTick;
     private final PlankStorageSet cost;

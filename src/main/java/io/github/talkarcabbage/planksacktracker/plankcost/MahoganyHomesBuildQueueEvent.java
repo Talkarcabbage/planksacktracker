@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import static io.github.talkarcabbage.planksacktracker.Constants.*;
 
-public class MahoganyHomesBuildQueueEvent implements PlankBuildQueueEvent {
+public class MahoganyHomesBuildQueueEvent implements GenericPlankBuildQueueEvent {
     PlankStorageSet cost;
     @Getter
     int currentTick;
