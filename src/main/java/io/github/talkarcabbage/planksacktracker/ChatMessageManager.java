@@ -23,12 +23,14 @@ public class ChatMessageManager {
         if (!config.chatInfo()) return;
         if (config.alwaysDisplayWarnings() || !sentMessages.containsKey(ID)) {
             plugin.client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", message, null);
+            sentMessages.put(ID, true);
         }
     }
     public void sendStaticMessage(String messageID) {
         if (!config.chatInfo()) return;
         if (config.alwaysDisplayWarnings() || !sentMessages.containsKey(messageID)) {
             plugin.client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", messageID, null);
+            sentMessages.put(messageID,true);
         }
     }
 
