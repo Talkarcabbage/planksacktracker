@@ -62,7 +62,7 @@ public class SackTrackerPlugin extends Plugin {
         sackManager = new PlankSackManager(this);
         overlay = new PlankSackOverlay(this, sackManager, config, tooltipManager );
         overlayManager.add(overlay);
-        chatManager = new ChatMessageManager(this);
+        chatManager = new ChatMessageManager(this, config);
     }
 
     protected ChatMessageManager getChatManager() {

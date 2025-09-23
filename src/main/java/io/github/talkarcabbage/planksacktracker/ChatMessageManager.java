@@ -11,12 +11,12 @@ import java.util.Map;
 public class ChatMessageManager {
 
     private final SackTrackerPlugin plugin;
-    @Inject
     private SackTrackerConfig config;
     private Map<String, Boolean> sentMessages = new HashMap<>();
 
-    public ChatMessageManager(SackTrackerPlugin plugin) {
+    public ChatMessageManager(SackTrackerPlugin plugin, SackTrackerConfig config) {
         this.plugin = plugin;
+        this.config = config;
     }
 
     public void sendMessage(String ID, String message) {
