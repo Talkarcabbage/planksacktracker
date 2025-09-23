@@ -130,6 +130,7 @@ public class SackTrackerPlugin extends Plugin {
                 if (cost != null) {
                     sackManager.addBuildEventToQueue(new BuildMenuBuildQueueEvent(client.getTickCount(), cost));
                 }
+                tracker.clearList(); //prevent keybinds from detecting the wrong past events
                 break;
             }
             case SCRIPT_SKILL_MENU_KEYBIND_PREFIRE: {//2051
@@ -156,7 +157,7 @@ public class SackTrackerPlugin extends Plugin {
                 }
                 break;
             }
-            case SCRIPT_CONFIRM_DIALOG_FOR_PLANK_MAKE: {
+            case SCRIPT_CONFIRM_DIALOG_FOR_PLANK_MAKE: { //58
                 if (prefireEvent.getScriptEvent().getArguments().length > 2 && prefireEvent.getScriptEvent().getArguments()[1].toString().contains(" coins to make ")) { // Plank make with confirm button
                     sackManager.setMostRecentAction(PlayerAction.PLANK_MAKE_DIALOG);
                 }

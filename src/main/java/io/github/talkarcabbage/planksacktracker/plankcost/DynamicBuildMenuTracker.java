@@ -17,6 +17,10 @@ public class DynamicBuildMenuTracker {
 
     }
 
+    public void clearList() {
+        costMap.clear();
+    }
+
     public PlankStorageSet getPlankCostByMenuEntry(int entry) {
         for (var it : costMap) {
             if (it.getBuildMenuID()==entry)
