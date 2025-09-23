@@ -99,11 +99,29 @@ public class SackTrackerPlugin extends Plugin {
                 var cost = tracker.getPlankCostByMenuEntry(Utils.intFromObjectOrDefault(prefireEvent.getScriptEvent().getArguments()[3], 0));
                 if (cost != null) {
                     sackManager.addBuildEventToQueue(new BuildMenuBuildQueueEvent(client.getTickCount(), cost));
+                } else {
+                    log.info("Logged a 1405 but it didn't have a cost: {}", prefireEvent.getScriptEvent().getArguments());
                 }
                 break;
             }
             case SCRIPT_ENTRY_ADDED_TO_BUILD_MENU: {//1404
                 tracker.addBuildMenuEventEntry(prefireEvent.getScriptEvent().getArguments());
+                break;
+            }
+            case 7988: { //TODO constants (this is the daddy's home hotspots menu builder event)
+                tracker.addBuildMenuEventEntry(prefireEvent.getScriptEvent().getArguments());
+                break;
+            }
+            case 7987: { //TODO constants (this is the daddy's home build click event?)
+                sackManager.updatePlayerInventory(PlankStorageSet.createFromInventory(client.getItemContainer(InventoryID.INV)));
+                // This event appears to fire specifically when constructing in the house.
+                // It does not appear to fire for mahogany homes.
+                var cost = tracker.getPlankCostByMenuEntry(Utils.intFromObjectOrDefault(prefireEvent.getScriptEvent().getArguments()[3], 0));
+                if (cost != null) {
+                    sackManager.addBuildEventToQueue(new BuildMenuBuildQueueEvent(client.getTickCount(), cost));
+                } else {
+                    log.info("Logged a 7987 but it didn't have a cost: {}", prefireEvent.getScriptEvent().getArguments());
+                }
                 break;
             }
             case SCRIPT_KEYBIND_PRESS_BUILD_MENU: {//1632
@@ -119,7 +137,7 @@ public class SackTrackerPlugin extends Plugin {
                 mostRecent2051Fire = prefireEvent;
                 break;
             }
-            case SCRIPT_SKILL_MENU_UI_PREFIRE:
+            case SCRIPT_SKILL_MENU_UI_PREFIRE: //2050
                 mostRecent2051Fire = null; //We want to invalidate the saved event
                 break;
             case SCRIPT_SKILL_MENU_ACTION_CHOSEN: {//2052
