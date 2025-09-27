@@ -141,10 +141,10 @@ public final class Constants {
     public static final int MAHOGANY_GOLD_COST = 1500;
 
     // Sawmill Widget IDs
-    public static final int PLANK_SAWMILL_ID = 17694734; //DOUBLE CHECK THESE TODO
-    public static final int OAK_PLANK_SAWMILL_ID = 17694735;
-    public static final int TEAK_PLANK_SAWMILL_ID = 17694736;
-    public static final int MAHOGANY_PLANK_SAWMILL_ID = 17694737;
+    public static final int SKILL_MENU_OPTION_1 = 17694734; //DOUBLE CHECK THESE TODO
+    public static final int SKILL_MENU_OPTION_2 = 17694735;
+    public static final int SKILL_MENU_OPTION_3 = 17694736;
+    public static final int SKILL_MENU_OPTION_4 = 17694737;
 
     // Plank Make costs
 
@@ -180,7 +180,7 @@ public final class Constants {
 
     public static final String MENU_BUILD_TEXT = "Build";
     public static final String MENU_REPAIR_TEXT = "Repair";
-    public static final String MENU_SAWMILL_MAKE = "Make";
+    public static final String MENU_OPTION_MAKE = "Make";
 
     public static final int SCRIPT_BUILD_MENU_ENTRY_CLICKED = 1405;
     public static final int SCRIPT_ENTRY_ADDED_TO_BUILD_MENU = 1404;
@@ -190,7 +190,7 @@ public final class Constants {
      */
     public static final int SCRIPT_SKILL_MENU_KEYBIND_PREFIRE = 2051;
     /**
-     * This fires when you click an option in the UI, I think?
+     * This fires when you click an option in the UI
      */
     public static final int SCRIPT_SKILL_MENU_UI_PREFIRE = 2050;
     /**
@@ -199,4 +199,8 @@ public final class Constants {
     public static final int SCRIPT_SKILL_MENU_ACTION_CHOSEN = 2052;
     public static final int SCRIPT_CONFIRM_DIALOG_FOR_PLANK_MAKE = 58;
 
+    public static final int SCRIPT_PREPARE_SKILL_MENU = 2046;
+
+    public static final int DADDYS_HOME_BUILD_CLICK_EVENT = 7987; //Probably has other uses
+    public static final int DADDYS_HOME_BUILD_MENU_OPTION_BUILDER_EVENT = 7988;
 }

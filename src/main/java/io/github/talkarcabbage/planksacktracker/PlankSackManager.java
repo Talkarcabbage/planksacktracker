@@ -268,9 +268,10 @@ public class PlankSackManager {
         consumePlanksForBuild(newInven, mostRecentMatchingQueueEvent);
     }
 
-    public void handlePlankMakeCast() {
+    public void handlePlankMakeCast(int vouchers) {
+        var amount = (vouchers>0?2:1);
         if (currentPlankSack.getRemainingSackSpace()>0) {
-            addToPlankSackAsFits(PlankStorageSet.createFromTier(1, mostRecentPlankMakeTier));
+            addToPlankSackAsFits(PlankStorageSet.createFromTier(amount, mostRecentPlankMakeTier));
         }
     }
 

@@ -18,6 +18,7 @@ import net.runelite.client.ui.overlay.tooltip.TooltipManager;
 
 import javax.inject.Inject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,7 +89,6 @@ public class SackTrackerPlugin extends Plugin {
     Map<Integer, Boolean> firedIDs = new HashMap<>(512);
     Map<Integer, Boolean> postfiredIDs = new HashMap<>(512);
 
-    private ScriptPreFired mostRecent2051Fire = null;
     @Subscribe
     public void onScriptPreFired(ScriptPreFired prefireEvent) {
         switch (prefireEvent.getScriptId()) {
@@ -108,11 +108,11 @@ public class SackTrackerPlugin extends Plugin {
                 tracker.addBuildMenuEventEntry(prefireEvent.getScriptEvent().getArguments());
                 break;
             }
-            case 7988: { //TODO constants (this is the daddy's home hotspots menu builder event)
+            case DADDYS_HOME_BUILD_MENU_OPTION_BUILDER_EVENT: { //TODO is this used for other stuff? (this is the daddy's home hotspots menu builder event)
                 tracker.addBuildMenuEventEntry(prefireEvent.getScriptEvent().getArguments());
                 break;
             }
-            case 7987: { //TODO constants (this is the daddy's home build click event?)
+            case DADDYS_HOME_BUILD_CLICK_EVENT: { //(this is the daddy's home build click event?)
                 sackManager.updatePlayerInventory(PlankStorageSet.createFromInventory(client.getItemContainer(InventoryID.INV)));
                 // This event appears to fire specifically when constructing in the house.
                 // It does not appear to fire for mahogany homes.
@@ -120,7 +120,7 @@ public class SackTrackerPlugin extends Plugin {
                 if (cost != null) {
                     sackManager.addBuildEventToQueue(new BuildMenuBuildQueueEvent(client.getTickCount(), cost));
                 } else {
-                    log.info("Logged a 7987 but it didn't have a cost: {}", prefireEvent.getScriptEvent().getArguments());
+                    log.debug("Logged a 7987 but it didn't have a cost: {}", prefireEvent.getScriptEvent().getArguments());
                 }
                 break;
             }
@@ -134,39 +134,62 @@ public class SackTrackerPlugin extends Plugin {
                 break;
             }
             case SCRIPT_SKILL_MENU_KEYBIND_PREFIRE: {//2051
-                log.info("Set the most recent 2051!");
-                mostRecent2051Fire = prefireEvent;
+                log.debug("Setting the most recent skill menu event from a key-press!");
+                var args = prefireEvent.getScriptEvent().getArguments();
+                try {
+                    mostRecentSkillMultiEvent = new SkillMenuActivationEvent(SCRIPT_SKILL_MENU_KEYBIND_PREFIRE, (Integer) args[3], (Integer) args[4] );
+                } catch (Exception e){
+                    log.debug("Encountered an error parsing a skill-menu keypress");
+                    mostRecentSkillMultiEvent = null;
+                }
                 break;
             }
             case SCRIPT_SKILL_MENU_UI_PREFIRE: //2050
-                mostRecent2051Fire = null; //We want to invalidate the saved event
+                log.debug("Setting the most recent skill menu event from a click!");
+                var args = prefireEvent.getScriptEvent().getArguments();
+                try {
+                    mostRecentSkillMultiEvent = new SkillMenuActivationEvent(SCRIPT_SKILL_MENU_UI_PREFIRE, (Integer) args[2], (Integer) args[3] );
+                } catch (Exception e){
+                    log.debug("Encountered an error parsing a skill-menu click");
+                    mostRecentSkillMultiEvent = null;
+                }
                 break;
             case SCRIPT_SKILL_MENU_ACTION_CHOSEN: {//2052
                 try {
                     // Theoretically, if the 2051 event specifically lines up with the sawmill plank ui options, it should work fine here.
                     // If it doesn't match, it should detect that in the method called and not do anything.
                     // We avoid doing anything if it's null, and we set it to null afterwards to make sure that it doesn't cache the wrong previous event.
-                    if (mostRecent2051Fire != null) {
-                        handleSawmillKeybindMake((Integer) mostRecent2051Fire.getScriptEvent().getArguments()[4]);
+                    if (mostRecentSkillMultiEvent != null && mostRecent2046LooksLikeSawmill) {
+                        handleSawmillKeybindMake(mostRecentSkillMultiEvent);
                     }
                 } catch (Exception e) {
-                    log.info("Cast failed for skill menu/sawmill keybind {}", e.getMessage());
+                    log.info("Cast failed for skill menu/sawmill activation {}", e.getMessage());
                 } finally {
-                    log.info("Set mostRecent to null!");
-                    mostRecent2051Fire = null;
+                    log.debug("Set mostRecentSkillMulti to null!");
+                    mostRecentSkillMultiEvent = null;
                 }
                 break;
             }
+            case SCRIPT_PREPARE_SKILL_MENU: { // 2046 (skillmulti_setup for filtering sawmill ui specifically as best we can
+                try {
+                    mostRecent2046LooksLikeSawmill = ((String)prefireEvent.getScriptEvent().getArguments()[2]).contains("Wood - 100gp|Oak - 250gp|Teak - 500gp|Mahogany - 1,500gp|");
+                } catch (Exception e){
+                    log.warn("Encountered an issue while detecting whether a sawmill is being used:{}", e.getMessage());
+                    mostRecent2046LooksLikeSawmill = false;
+                }
+            }
             case SCRIPT_CONFIRM_DIALOG_FOR_PLANK_MAKE: { //58
-                if (prefireEvent.getScriptEvent().getArguments().length > 2 && prefireEvent.getScriptEvent().getArguments()[1].toString().contains(" coins to make ")) { // Plank make with confirm button
+                if (prefireEvent.getScriptEvent().getArguments().length > 2 && prefireEvent.getScriptEvent().getArguments()[1].toString().contains(" coins to make ")) {
+                    // Plank make with confirm button. There could be other matches, but it's hard to filter out and
+                    // It's unlikely to cause issues since there are other places that detect the plank-make spell anyway
                     sackManager.setMostRecentAction(PlayerAction.PLANK_MAKE_DIALOG);
                 }
                 break;
             }
         }
     }
-
-
+    private boolean mostRecent2046LooksLikeSawmill = false;
+    private SkillMenuActivationEvent mostRecentSkillMultiEvent;
 
     @Subscribe
     public void onChatMessage(ChatMessage chatEvent) {
@@ -189,7 +212,8 @@ public class SackTrackerPlugin extends Plugin {
                 return;
             }
             if (client.getLocalPlayer().getAnimation() == AnimationID.DREAM_PLAYER_MAKE_PLANK_SPELL && (sackManager.getMostRecentAction() == PlayerAction.PLANK_MAKE_ANIMATION || sackManager.getMostRecentAction() == PlayerAction.PLANK_MAKE_DIALOG || sackManager.getMostRecentAction() == PlayerAction.PLANK_MAKE)) {
-                sackManager.handlePlankMakeCast();
+                sackManager.handlePlankMakeCast(numberOfSawmillVouchersAtTimeOfPlankMake);
+                numberOfSawmillVouchersAtTimeOfPlankMake--; //Decrement as we autocast. Negative values shouldn't hurt anything.
             }
             previousMagicXP = event.getXp();
         }
@@ -212,7 +236,7 @@ public class SackTrackerPlugin extends Plugin {
         }
 
     }
-
+    private int numberOfSawmillVouchersAtTimeOfPlankMake = 0;
     @Subscribe
     public void onItemContainerChanged(ItemContainerChanged event) {
         if (event.getContainerId()==InventoryID.INV) {
@@ -257,6 +281,7 @@ public class SackTrackerPlugin extends Plugin {
 
         if (menuOption.equals(Constants.CAST_MENU_OPTION) && event.getMenuAction()==MenuAction.WIDGET_TARGET_ON_WIDGET) {
             sackManager.setMostRecentAction(PlayerAction.UNKNOWN);
+            numberOfSawmillVouchersAtTimeOfPlankMake = client.getItemContainer(InventoryID.INV).count(ItemID.FORESTRY_SAWMILL_VOUCHER); //Why oh why would the inventory be null when we clicked something in it
             handlePlankMakeCastMaybeClicked(event); // Will update from unknown if making planks
         }
 
@@ -275,13 +300,6 @@ public class SackTrackerPlugin extends Plugin {
         } else if (menuOption.equals(MENU_BUILD_TEXT) || menuOption.equals(MENU_REPAIR_TEXT)) {
             sackManager.setMostRecentAction(PlayerAction.CONSTRUCT);
         }
-
-        if (menuOption.equals(MENU_SAWMILL_MAKE)) {
-            handleSawmillClickMake(event);
-            log.info("Added a sawmill event");
-        }
-        //We can call this without issue since if the param is wrong
-        //it will just ignore it.
 
         // MahoganyHomes build
         if (mhCost > 0 && !menuOption.equals(MENU_REMOVE)) {
@@ -357,54 +375,33 @@ public class SackTrackerPlugin extends Plugin {
         sackManager.setMostRecentAction(PlayerAction.USING_SAWMILL);
     }
 
-    public void handleSawmillKeybindMake(int plankUIWidgetID) {
+    public void handleSawmillKeybindMake(SkillMenuActivationEvent skillMenuEvent) {
         var typeOfLog = PlankTier.UNKNOWN;
-        switch (plankUIWidgetID) {
-            case PLANK_SAWMILL_ID:
-                typeOfLog=PlankTier.PLANK;
+        var itemID = skillMenuEvent.getItemID();
+        var menuOption = skillMenuEvent.getMenuID();
+        switch (menuOption) {
+            case SKILL_MENU_OPTION_1:
+                if (itemID==ItemID.LOGS) //Extra insurance, assuming it works as expected, that we are getting the right menu option.
+                    typeOfLog=PlankTier.PLANK;
                 break;
-            case OAK_PLANK_SAWMILL_ID:
-                typeOfLog=PlankTier.OAK;
+            case SKILL_MENU_OPTION_2:
+                if (itemID==ItemID.OAK_LOGS)
+                    typeOfLog=PlankTier.OAK;
                 break;
-            case TEAK_PLANK_SAWMILL_ID:
-                typeOfLog=PlankTier.TEAK;
+            case SKILL_MENU_OPTION_3:
+                if (itemID==ItemID.TEAK_LOGS)
+                    typeOfLog=PlankTier.TEAK;
                 break;
-            case MAHOGANY_PLANK_SAWMILL_ID:
-                typeOfLog=PlankTier.MAHOGANY;
+            case SKILL_MENU_OPTION_4:
+                if (itemID==ItemID.MAHOGANY_LOGS)
+                    typeOfLog=PlankTier.MAHOGANY;
                 break;
             default:
-                log.warn("Intercepted a sawmill keybind event but found no matching plank!");
+                log.warn("Intercepted a sawmill event but found no matching plank!");
         }
         if (typeOfLog==PlankTier.UNKNOWN) return;
         handleSawmillBuild(typeOfLog);
     }
-
-    private void handleSawmillClickMake(MenuOptionClicked event) {
-        log.info("Sawmill click:" + event.getParam1() + " " );
-        var typeOfLog = PlankTier.UNKNOWN;
-        switch (event.getParam1()) {
-            case PLANK_SAWMILL_ID:
-                typeOfLog = PlankTier.PLANK;
-                break;
-            case OAK_PLANK_SAWMILL_ID:
-                typeOfLog = PlankTier.OAK;
-                break;
-            case TEAK_PLANK_SAWMILL_ID:
-                typeOfLog = PlankTier.TEAK;
-                break;
-            case MAHOGANY_PLANK_SAWMILL_ID:
-                typeOfLog = PlankTier.MAHOGANY;
-                break;
-            default:
-        }
-        if (typeOfLog==PlankTier.UNKNOWN) return;
-        handleSawmillBuild(typeOfLog);
-    }
-
-
-
-
-
 
     private void handlePlankSackClickInteraction(MenuOptionClicked event) {
         if (event.getWidget()==null) return; // We expect a non-null for inventory widgets
