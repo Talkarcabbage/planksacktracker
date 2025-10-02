@@ -161,18 +161,23 @@ public class SackTrackerPlugin extends Plugin {
                     // We avoid doing anything if it's null, and we set it to null afterwards to make sure that it doesn't cache the wrong previous event.
                     if (mostRecentSkillMultiEvent != null && mostRecent2046LooksLikeSawmill) {
                         handleSawmillKeybindMake(mostRecentSkillMultiEvent);
+                        log.debug("Handled sawmill make");
+                    } else {
+                        log.debug("Sawmill check failed: {} | {}", mostRecentSkillMultiEvent, mostRecent2046LooksLikeSawmill);
                     }
                 } catch (Exception e) {
                     log.info("Cast failed for skill menu/sawmill activation {}", e.getMessage());
                 } finally {
-                    log.debug("Set mostRecentSkillMulti to null!");
+                    log.debug("Set mostRecentSkillMulti to null via 2052 handler!");
                     mostRecentSkillMultiEvent = null;
                 }
                 break;
             }
             case SCRIPT_PREPARE_SKILL_MENU: { // 2046 (skillmulti_setup for filtering sawmill ui specifically as best we can
                 try {
+                    log.debug("Information from prefire for 2046:" + (String) prefireEvent.getScriptEvent().getArguments()[2]);
                     mostRecent2046LooksLikeSawmill = ((String)prefireEvent.getScriptEvent().getArguments()[2]).contains("Wood - 100gp|Oak - 250gp|Teak - 500gp|Mahogany - 1,500gp|");
+                    log.debug("2046 is: {}", mostRecent2046LooksLikeSawmill);
                 } catch (Exception e){
                     log.warn("Encountered an issue while detecting whether a sawmill is being used:{}", e.getMessage());
                     mostRecent2046LooksLikeSawmill = false;
@@ -316,11 +321,11 @@ public class SackTrackerPlugin extends Plugin {
             switch (menuOption) {
                 case Constants.MENU_BUILD_TEXT:
                     sackManager.addBuildEventToQueue(new MahoganyHomesBuildQueueEvent(plankCost, client.getTickCount()));
-                    log.info("Added a build event");
+                    log.debug("Added a build event");
                     break;
                 case Constants.MENU_REPAIR_TEXT:
                     sackManager.addBuildEventToQueue(new MahoganyHomesRepairQueueEvent(plankCost, client.getTickCount()));
-                    log.info("Added a repair event");
+                    log.debug("Added a repair event");
                     break;
                 default:
                     log.warn("Build menu option didn't exist for plank sack: " + menuOption);
@@ -335,15 +340,15 @@ public class SackTrackerPlugin extends Plugin {
     }
 
     private void handleSawmillBuild(PlankTier typeOfLog) {
-        log.info("handle sawmill logged");
+        log.debug("handle sawmill logged");
         var incomingPlanks = PlankStorageSet.emptySet();
         var currentInventory = client.getItemContainer(InventoryID.INV);
         if (currentInventory==null) {
-            log.info("Inventory null for sawmill build");
+            log.debug("Inventory null for sawmill build");
             return; //Why would our inventory not exist though???
         }
         if (typeOfLog==PlankTier.UNKNOWN) {
-            log.info(""+typeOfLog);
+            log.debug(""+typeOfLog);
             return; // Somewhat redundant, but if this code is reused later it's worth keeping in
         }
         int coins = currentInventory.count(ItemID.COINS);
@@ -378,26 +383,25 @@ public class SackTrackerPlugin extends Plugin {
     public void handleSawmillKeybindMake(SkillMenuActivationEvent skillMenuEvent) {
         var typeOfLog = PlankTier.UNKNOWN;
         var itemID = skillMenuEvent.getItemID();
-        var menuOption = skillMenuEvent.getMenuID();
-        switch (menuOption) {
-            case SKILL_MENU_OPTION_1:
-                if (itemID==ItemID.LOGS) //Extra insurance, assuming it works as expected, that we are getting the right menu option.
-                    typeOfLog=PlankTier.PLANK;
+        switch (itemID) {
+            case ItemID.LOGS: {
+                typeOfLog=PlankTier.PLANK;
                 break;
-            case SKILL_MENU_OPTION_2:
-                if (itemID==ItemID.OAK_LOGS)
-                    typeOfLog=PlankTier.OAK;
+            }
+            case ItemID.OAK_LOGS: {
+                typeOfLog=PlankTier.OAK;
                 break;
-            case SKILL_MENU_OPTION_3:
-                if (itemID==ItemID.TEAK_LOGS)
-                    typeOfLog=PlankTier.TEAK;
+            }
+            case ItemID.TEAK_LOGS: {
+                typeOfLog=PlankTier.TEAK;
                 break;
-            case SKILL_MENU_OPTION_4:
-                if (itemID==ItemID.MAHOGANY_LOGS)
-                    typeOfLog=PlankTier.MAHOGANY;
+            }
+            case ItemID.MAHOGANY_LOGS: {
+                typeOfLog=PlankTier.MAHOGANY;
                 break;
+            }
             default:
-                log.warn("Intercepted a sawmill event but found no matching plank!");
+                log.warn("Intercepted a sawmill event but found no matching plank! This is a bug!");
         }
         if (typeOfLog==PlankTier.UNKNOWN) return;
         handleSawmillBuild(typeOfLog);
@@ -414,7 +418,7 @@ public class SackTrackerPlugin extends Plugin {
             case FILL_SACK:
             case EMPTY_SACK:
                 var inv = client.getItemContainer(InventoryID.INV);
-                if (inv!=null) log.info(PlankStorageSet.createFromInventory(inv).toPrintableString());
+                if (inv!=null) log.debug(PlankStorageSet.createFromInventory(inv).toPrintableString());
                 if (inv!=null) sackManager.setExpectingPlankSackInventoryChangeViaClickingSack(true, PlankStorageSet.createFromInventory(inv));
                 break;
         }

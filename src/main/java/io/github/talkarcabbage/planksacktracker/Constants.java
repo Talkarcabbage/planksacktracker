@@ -140,15 +140,6 @@ public final class Constants {
     public static final int TEAK_GOLD_COST = 500;
     public static final int MAHOGANY_GOLD_COST = 1500;
 
-    // Sawmill Widget IDs
-    public static final int SKILL_MENU_OPTION_1 = 17694734; //DOUBLE CHECK THESE TODO
-    public static final int SKILL_MENU_OPTION_2 = 17694735;
-    public static final int SKILL_MENU_OPTION_3 = 17694736;
-    public static final int SKILL_MENU_OPTION_4 = 17694737;
-
-    // Plank Make costs
-
-
     // Planksack options
     public static final String FILL_STRING_OPTION = "Fill";
     public static final String EMPTY_STRING_OPTION = "Empty";
