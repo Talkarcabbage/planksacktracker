@@ -102,6 +102,19 @@ public class SackTrackerPlugin extends Plugin {
                 } else {
                     log.info("Logged a 1405 but it didn't have a cost: {}", prefireEvent.getScriptEvent().getArguments());
                 }
+                tracker.clearList(); //prevent keybinds from detecting the wrong past events
+                break;
+            }
+            case SCRIPT_KEYBIND_PRESS_BUILD_MENU: {//1632
+                sackManager.updatePlayerInventory(PlankStorageSet.createFromInventory(client.getItemContainer(InventoryID.INV)));
+                log.debug("1632 args[2] is {}", prefireEvent.getScriptEvent().getArguments()[2]);
+                var cost = tracker.getPlankCostByUIKeybind(Utils.intFromObjectOrDefault(prefireEvent.getScriptEvent().getArguments()[2], 0));
+                log.debug("Processed a 1632 build event {}", cost.toPrintableString());
+                if (cost != null) {
+                    log.debug("Added a 1632 build for cost {}", cost.toPrintableString());
+                    sackManager.addBuildEventToQueue(new BuildMenuBuildQueueEvent(client.getTickCount(), cost));
+                }
+                tracker.clearList(); //prevent keybinds from detecting the wrong past events
                 break;
             }
             case SCRIPT_ENTRY_ADDED_TO_BUILD_MENU: {//1404
@@ -122,15 +135,6 @@ public class SackTrackerPlugin extends Plugin {
                 } else {
                     log.debug("Logged a 7987 but it didn't have a cost: {}", prefireEvent.getScriptEvent().getArguments());
                 }
-                break;
-            }
-            case SCRIPT_KEYBIND_PRESS_BUILD_MENU: {//1632
-                sackManager.updatePlayerInventory(PlankStorageSet.createFromInventory(client.getItemContainer(InventoryID.INV)));
-                var cost = tracker.getPlankCostByUIKeybind(Utils.intFromObjectOrDefault(prefireEvent.getScriptEvent().getArguments()[2], 0));
-                if (cost != null) {
-                    sackManager.addBuildEventToQueue(new BuildMenuBuildQueueEvent(client.getTickCount(), cost));
-                }
-                tracker.clearList(); //prevent keybinds from detecting the wrong past events
                 break;
             }
             case SCRIPT_SKILL_MENU_KEYBIND_PREFIRE: {//2051

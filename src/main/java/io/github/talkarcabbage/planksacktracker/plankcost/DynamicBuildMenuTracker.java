@@ -26,7 +26,7 @@ public class DynamicBuildMenuTracker {
             if (it.getBuildMenuID()==entry)
                 return it.getCost();
         }
-        return PlankStorageSet.emptySet();
+        return null;
     }
 
     public PlankStorageSet getPlankCostByUIKeybind(int key) {
@@ -34,7 +34,7 @@ public class DynamicBuildMenuTracker {
             if (it.getUiKeybindID()==key)
                 return it.getCost();
         }
-        return PlankStorageSet.emptySet();
+        return null;
     }
 
     public void addBuildMenuEventEntry(Object[] entryArray) {
@@ -62,7 +62,7 @@ public class DynamicBuildMenuTracker {
                     buildCost = buildCost.add(PlankStorageSet.createFromTier(Utils.intFromStringOrDefault(component.substring(MAHOGANY_UI_TEXT.length()), 0), PlankTier.MAHOGANY));
                 }
             }
-            log.info("Added a cost entry: "+buildIDInt+" " + buildCost.toPrintableString());
+            log.info("Added a cost entry: "+buildIDInt+" " + buildCost.toPrintableString() + " keybind:" + keyInList);
             this.costMap.add(new BuildMenuCost(buildIDInt, keyInList , buildCost));
         } else {
             log.warn("Failed to parse a 1404 cost entry");
