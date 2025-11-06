@@ -1,7 +1,7 @@
 package io.github.talkarcabbage.planksacktracker;
 
-public enum Confidence {
+public enum OverlayTextType {
     NONE,
-    LOW,
-    HIGH
+    ABBREVIATED,
+    FULL
 }

@@ -51,10 +51,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         graphics.setFont(FontManager.getRunescapeSmallFont());
         int startingDrawX = widgetItem.getCanvasLocation().getX();
         int startingDrawY = widgetItem.getCanvasLocation().getY() + 10;
-        if (manager.shouldDisplayQuestionMark()) {
-            drawString(graphics, "?",startingDrawX+8,startingDrawY);
-        }
-        else if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
+        if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
             drawString(graphics, "0",startingDrawX+8,startingDrawY);
         } else {
             if (config.showOverlayIcons()) {
@@ -73,10 +70,6 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         var brLength = 0;
         StringBuilder tb = new StringBuilder();
 
-        if (manager.shouldDisplayQuestionMark()) {
-            tooltipManager.add(new Tooltip("The plank sack contents are</br>currently unknown, check it!"));
-            return;
-        }
         if (currentPlankSack.isEmpty()) {
             tooltipManager.add(new Tooltip("Empty!"));
             return;
