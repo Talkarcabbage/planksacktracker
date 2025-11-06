@@ -16,20 +16,17 @@ import java.awt.image.BufferedImage;
 
 @Slf4j
 public class PlankSackOverlay extends WidgetItemOverlay {
-    private SackTrackerConfig config;
-    private PlankSackManager manager;
+    private final SackTrackerConfig config;
+    private final PlankSackManager manager;
+    private final SackTrackerPlugin trackerPlugin;
 
-    private BufferedImage plankImage;
-    private BufferedImage oakImage;
-    private BufferedImage teakImage;
-    private BufferedImage mahoganyImage;
-    private BufferedImage rosewoodImage;
-    private BufferedImage ironwoodImage;
-    private BufferedImage camphorImage;
-
-    private SackTrackerPlugin trackerPlugin;
-
-    private boolean overlayIconsWorking = false;
+    private final BufferedImage plankImage;
+    private final BufferedImage oakImage;
+    private final BufferedImage teakImage;
+    private final BufferedImage mahoganyImage;
+    private final BufferedImage rosewoodImage;
+    private final BufferedImage ironwoodImage;
+    private final BufferedImage camphorImage;
 
     TooltipManager tooltipManager;
 
@@ -46,8 +43,8 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         ironwoodImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/ironwood_small.png");
         camphorImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/camphor_small.png");
 
-        if (Utils.allNotNull(plankImage, oakImage, teakImage, mahoganyImage, rosewoodImage, ironwoodImage, camphorImage)) {
-            overlayIconsWorking = true;
+        if (!Utils.allNotNull(plankImage, oakImage, teakImage, mahoganyImage, rosewoodImage, ironwoodImage, camphorImage)) {
+            log.error("Some or all of the icons for the plank sack tracker plugin failed to load!");
         }
         this.tooltipManager = tooltipManager;
     }

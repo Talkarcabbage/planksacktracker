@@ -35,7 +35,6 @@ public class SackTrackerPlugin extends Plugin {
     private SackTrackerConfig config;
     @Inject
     private OverlayManager overlayManager;
-    private PlankSackManager sackManager = new PlankSackManager(this);
     private PlankSackOverlay overlay = null;
 
     @Inject
@@ -44,14 +43,14 @@ public class SackTrackerPlugin extends Plugin {
     public static final String PLUGIN_GROUP_ID = "planksacktracker";
 
     @Override
-    protected void startUp() throws Exception {
-        sackManager = new PlankSackManager(this);
+    protected void startUp() {
+        PlankSackManager sackManager = new PlankSackManager(this);
         overlay = new PlankSackOverlay(this, sackManager, config, tooltipManager );
         overlayManager.add(overlay);
     }
 
     @Override
-    protected void shutDown() throws Exception {
+    protected void shutDown() {
         overlayManager.remove(overlay);
     }
 

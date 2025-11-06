@@ -3,8 +3,6 @@ package io.github.talkarcabbage.planksacktracker;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Item;
-import net.runelite.api.ItemContainer;
 
 @Getter
 @Slf4j
@@ -28,7 +26,6 @@ public class PlankStorageSet {
     }
     /**
      * Returns true if the storage set only contains one type of plank
-     * @return
      */
     public boolean isMonoContent() {
         int count = 0;
@@ -122,16 +119,7 @@ public class PlankStorageSet {
     }
 
     /**
-     * Returns true if any of the plank values stored in this
-     * storage are negative.
-     * @return
-     */
-    public boolean hasNegativeValues() {
-        return (planks<0||oaks<0||teaks<0||mahoganies<0||rosewoods<0||ironwoods<0||camphors<0);
-    }
-    /**
      * Returns the number of planks matching the given tier of plank
-     * @return
      */
     public int getTierAmount(PlankTier tier) {
         switch (tier){

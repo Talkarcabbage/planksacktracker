@@ -1,7 +1,6 @@
 package io.github.talkarcabbage.planksacktracker;
 
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.gameval.ItemID;
 import net.runelite.client.util.ColorUtil;
 
 import java.awt.*;
@@ -22,7 +21,6 @@ public class Utils {
     /**
      * Returns true if every var-arg provided is not null
      * @param objects
-     * @return
      */
     public static boolean allNotNull(Object... objects) {
         for (var o : objects) {

@@ -5,7 +5,7 @@ import net.runelite.api.gameval.VarbitID;
 
 @Slf4j
 public class PlankSackManager {
-    private SackTrackerPlugin plugin;
+    private final SackTrackerPlugin plugin;
 
     public PlankSackManager(SackTrackerPlugin plugin) {
         this.plugin = plugin;
