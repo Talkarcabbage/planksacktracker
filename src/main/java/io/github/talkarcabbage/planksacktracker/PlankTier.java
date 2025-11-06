@@ -5,5 +5,8 @@ public enum PlankTier {
     OAK,
     TEAK,
     MAHOGANY,
+    ROSEWOOD,
+    IRONWOOD,
+    CAMPHOR,
     UNKNOWN
 }

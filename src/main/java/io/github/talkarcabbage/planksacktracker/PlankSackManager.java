@@ -21,11 +21,11 @@ public class PlankSackManager {
 
     private final SackTrackerPlugin plugin;
 
-    private PlankStorageSet preBuildInventoryContents = new PlankStorageSet(0,0,0,0);
+    private PlankStorageSet preBuildInventoryContents = new PlankStorageSet(0,0,0,0,0,0,0);
     private final LinkedList<GenericPlankBuildQueueEvent> pendingBuildQueue = new LinkedList<>();
 
     @Getter
-    private PlankStorageSet currentPlankSack = new PlankStorageSet(0,0,0,0);
+    private PlankStorageSet currentPlankSack = new PlankStorageSet(0,0,0,0,0,0,0);
 
     //XP value we had at the most recent time we got an XP drop. Initialize to -2 until we have our xp values
     @Setter
@@ -244,7 +244,7 @@ public class PlankSackManager {
 
         //If all else fails and we don't even know what we used before
         //plankSackContentsNeedManualUpdate=true;
-        return new Pair<>(new PlankStorageSet(0,0,0,0), NONE);
+        return new Pair<>(new PlankStorageSet(0,0,0,0,0,0,0), NONE);
     }
 
     /**
@@ -382,6 +382,19 @@ public class PlankSackManager {
         plankSackContentsNeedManualUpdate = false;
     }
 
+    /**
+     * Used when the 'check' option is clicked to prepare for new contents.
+     */
+    public void resetPlankSackForChecking() {
+        this.currentPlankSack = PlankStorageSet.emptySet();
+        this.setContentsConfidence(HIGH);
+        this.plankSackContentsNeedManualUpdate=false;
+    }
+
+    public void updatePlankTierFromLog(PlankStorageSet newContent) {
+        this.currentPlankSack = this.currentPlankSack.add(newContent);
+    }
+
     private void consumeFromPlankSack(PlankStorageSet contentUpdate) {
         setPlankSackContents(this.currentPlankSack.subtract(contentUpdate));
     }
@@ -418,26 +431,95 @@ public class PlankSackManager {
 
     /**
      * Normalize any negative values in the sack and invalidate the planksack as needing refreshed if any of them are.
-     *
+     * TODO consider putting this into the PlankStorageSet code
      */
     private void normalizePlankSackContents() {
-        if (currentPlankSack.getPlanks()<0) {
-            plankSackContentsNeedManualUpdate=true;
-            setPlankSackContents(new PlankStorageSet(0, currentPlankSack.getOaks(), currentPlankSack.getTeaks(), currentPlankSack.getMahoganies()));
+        if (currentPlankSack.getPlanks() < 0) {
+            plankSackContentsNeedManualUpdate = true;
+            setPlankSackContents(new PlankStorageSet(
+                    0,
+                    currentPlankSack.getOaks(),
+                    currentPlankSack.getTeaks(),
+                    currentPlankSack.getMahoganies(),
+                    currentPlankSack.getRosewoods(),
+                    currentPlankSack.getIronwoods(),
+                    currentPlankSack.getCamphors()
+            ));
         }
-        if (currentPlankSack.getOaks()<0) {
-            plankSackContentsNeedManualUpdate=true;
-            setPlankSackContents(new PlankStorageSet(currentPlankSack.getPlanks(), 0, currentPlankSack.getTeaks(), currentPlankSack.getMahoganies()));
+        if (currentPlankSack.getOaks() < 0) {
+            plankSackContentsNeedManualUpdate = true;
+            setPlankSackContents(new PlankStorageSet(
+                    currentPlankSack.getPlanks(),
+                    0,
+                    currentPlankSack.getTeaks(),
+                    currentPlankSack.getMahoganies(),
+                    currentPlankSack.getRosewoods(),
+                    currentPlankSack.getIronwoods(),
+                    currentPlankSack.getCamphors()
+            ));
         }
-        if (currentPlankSack.getTeaks()<0) {
-            plankSackContentsNeedManualUpdate=true;
-            setPlankSackContents(new PlankStorageSet(currentPlankSack.getPlanks(), currentPlankSack.getOaks(), 0, currentPlankSack.getMahoganies()));
+        if (currentPlankSack.getTeaks() < 0) {
+            plankSackContentsNeedManualUpdate = true;
+            setPlankSackContents(new PlankStorageSet(
+                    currentPlankSack.getPlanks(),
+                    currentPlankSack.getOaks(),
+                    0,
+                    currentPlankSack.getMahoganies(),
+                    currentPlankSack.getRosewoods(),
+                    currentPlankSack.getIronwoods(),
+                    currentPlankSack.getCamphors()
+            ));
         }
-        if (currentPlankSack.getMahoganies()<0) {
-            plankSackContentsNeedManualUpdate=true;
-            setPlankSackContents(new PlankStorageSet(currentPlankSack.getPlanks(), currentPlankSack.getOaks(), currentPlankSack.getTeaks(), 0));
+        if (currentPlankSack.getMahoganies() < 0) {
+            plankSackContentsNeedManualUpdate = true;
+            setPlankSackContents(new PlankStorageSet(
+                    currentPlankSack.getPlanks(),
+                    currentPlankSack.getOaks(),
+                    currentPlankSack.getTeaks(),
+                    0,
+                    currentPlankSack.getRosewoods(),
+                    currentPlankSack.getIronwoods(),
+                    currentPlankSack.getCamphors()
+            ));
+        }
+        if (currentPlankSack.getRosewoods() < 0) {
+            plankSackContentsNeedManualUpdate = true;
+            setPlankSackContents(new PlankStorageSet(
+                    currentPlankSack.getPlanks(),
+                    currentPlankSack.getOaks(),
+                    currentPlankSack.getTeaks(),
+                    currentPlankSack.getMahoganies(),
+                    0,
+                    currentPlankSack.getIronwoods(),
+                    currentPlankSack.getCamphors()
+            ));
+        }
+        if (currentPlankSack.getIronwoods() < 0) {
+            plankSackContentsNeedManualUpdate = true;
+            setPlankSackContents(new PlankStorageSet(
+                    currentPlankSack.getPlanks(),
+                    currentPlankSack.getOaks(),
+                    currentPlankSack.getTeaks(),
+                    currentPlankSack.getMahoganies(),
+                    currentPlankSack.getRosewoods(),
+                    0,
+                    currentPlankSack.getCamphors()
+            ));
+        }
+        if (currentPlankSack.getCamphors() < 0) {
+            plankSackContentsNeedManualUpdate = true;
+            setPlankSackContents(new PlankStorageSet(
+                    currentPlankSack.getPlanks(),
+                    currentPlankSack.getOaks(),
+                    currentPlankSack.getTeaks(),
+                    currentPlankSack.getMahoganies(),
+                    currentPlankSack.getRosewoods(),
+                    currentPlankSack.getIronwoods(),
+                    0
+            ));
         }
     }
+
 
     /**
      * Handles an inventory update when called manually.

@@ -37,21 +37,6 @@ public class Utils {
             return defaultValue;
         }
     }
-    public static PlankStorageSet parsePlankSackChatLog(String chatLog) {
-        Matcher m = Pattern.compile("(\\d{1,2})</col>").matcher(chatLog);
-        int[] vals = new int[4];
-        for (int i = 0; m.find() && i < 4; i++) {
-            try {
-                vals[i] = Integer.parseInt(m.group(1));
-            } catch (NumberFormatException e) {
-                log.warn("Failed to parse planksack content message value!");
-                vals[i]=0;
-            } catch (IllegalStateException | IndexOutOfBoundsException e) {
-                log.warn("Failed to run regex to check planksack contents!");
-            }
-        }
-        return new PlankStorageSet(vals[0], vals[1], vals[2], vals[3]);
-    }
 
     private static final XP OVERLAP_XP = new XP(144);
 
@@ -70,11 +55,15 @@ public class Utils {
         var xpMahogany = new XP(Constants.MAHOGANY_MAHOGANY_HOMES_XP.getServerXPValue()*modifier, true);
 
         //TODO this maybe doesn't work quite right
+        //todo doubly so after the sailing stuff
         return new PlankStorageSet(
-        getPlanksFromXPIfMatches(xpPlank, givenXP),
-        getPlanksFromXPIfMatches(xpOak, givenXP),
-        getPlanksFromXPIfMatches(xpTeak, givenXP),
-        getPlanksFromXPIfMatches(xpMahogany, givenXP)
+                getPlanksFromXPIfMatches(xpPlank, givenXP),
+                getPlanksFromXPIfMatches(xpOak, givenXP),
+                getPlanksFromXPIfMatches(xpTeak, givenXP),
+                getPlanksFromXPIfMatches(xpMahogany, givenXP),
+                0,
+                0,
+                0
         );
 
     }
@@ -140,6 +129,7 @@ public class Utils {
                 return PlankTier.TEAK;
             case ItemID.PLANK_MAHOGANY:
                 return PlankTier.MAHOGANY;
+            //TODO: item IDS for the new 3 planks
             default:
                 return PlankTier.UNKNOWN;
         }

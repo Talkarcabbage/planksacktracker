@@ -13,12 +13,22 @@ public class PlankStorageSet {
     private final int oaks;
     private final int teaks;
     private final int mahoganies;
+    private final int rosewoods;
+    private final int ironwoods;
+    private final int camphors;
 
-    public PlankStorageSet(int planks, int oaks, int teaks, int mahoganies) {
+    public PlankStorageSet(int planks, int oaks, int teaks, int mahoganies, int rosewoods, int ironwoods, int camphors) {
         this.planks=planks;
         this.oaks=oaks;
         this.teaks=teaks;
         this.mahoganies=mahoganies;
+        this.rosewoods = rosewoods;
+        this.ironwoods = ironwoods;
+        this.camphors = camphors;
+    }
+
+    public static PlankStorageSet fromPreSailingSet(int planks, int oaks, int teaks, int mahoganies) {
+        return new PlankStorageSet(planks, oaks, teaks, mahoganies, 0,0,0);
     }
 
     /**
@@ -26,12 +36,12 @@ public class PlankStorageSet {
      * @param copy
      */
     public PlankStorageSet(PlankStorageSet copy) {
-        this(copy.planks, copy.oaks, copy.teaks, copy.mahoganies);
+        this(copy.planks, copy.oaks, copy.teaks, copy.mahoganies, copy.rosewoods, copy.ironwoods, copy.camphors);
     }
 
     public static PlankStorageSet createFromInventory(ItemContainer container) {
         var items = container.getItems();
-        int planks = 0, oaks=0, teaks=0, mahoganies = 0;
+        int planks = 0, oaks=0, teaks=0,mahoganies = 0,rosewoods = 0, ironwoods=0,camphors=0;
         for (Item item : items) {
             var id = item.getId();
             switch (Utils.getFromItemID(id)) {
@@ -47,10 +57,19 @@ public class PlankStorageSet {
                 case MAHOGANY:
                     mahoganies++;
                     break;
+                case ROSEWOOD:
+                    rosewoods++;
+                    break;
+                case IRONWOOD:
+                    ironwoods++;
+                    break;
+                case CAMPHOR:
+                    camphors++;
+                    break;
                 default:
             }
         }
-        return new PlankStorageSet(planks,oaks,teaks,mahoganies);
+        return new PlankStorageSet(planks,oaks,teaks,mahoganies,rosewoods,ironwoods,camphors);
     }
 
     /**
@@ -62,23 +81,28 @@ public class PlankStorageSet {
     public static PlankStorageSet createFromTier(int planks, PlankTier tier) {
         switch (tier) {
             case PLANK:
-                return new PlankStorageSet(planks,0,0,0);
+                return new PlankStorageSet(planks, 0, 0, 0, 0, 0, 0);
             case OAK:
-                return new PlankStorageSet(0,planks,0,0);
+                return new PlankStorageSet(0, planks, 0, 0, 0, 0, 0);
             case TEAK:
-                return new PlankStorageSet(0,0,planks,0);
+                return new PlankStorageSet(0, 0, planks, 0, 0, 0, 0);
             case MAHOGANY:
-                return new PlankStorageSet(0,0,0,planks);
+                return new PlankStorageSet(0, 0, 0, planks, 0, 0, 0);
+            case ROSEWOOD:
+                return new PlankStorageSet(0, 0, 0, 0, planks, 0, 0);
+            case IRONWOOD:
+                return new PlankStorageSet(0, 0, 0, 0, 0, planks, 0);
+            case CAMPHOR:
+                return new PlankStorageSet(0, 0, 0, 0, 0, 0, planks);
             default:
                 log.warn("Tried to create from tier but it doesn't exist!");
-                return new PlankStorageSet(0,0,0,0);
+                return new PlankStorageSet(0, 0, 0, 0, 0, 0, 0);
         }
     }
 
     public static PlankStorageSet emptySet() {
-        return new PlankStorageSet(0,0,0,0);
+        return new PlankStorageSet(0,0,0,0,0,0,0);
     }
-
     /**
      * Returns true if the storage set only contains one type of plank
      * @return
@@ -89,6 +113,9 @@ public class PlankStorageSet {
         if (oaks != 0) count++;
         if (teaks != 0) count++;
         if (mahoganies != 0) count++;
+        if (rosewoods != 0) count++;
+        if (ironwoods != 0) count++;
+        if (camphors != 0) count++;
         return count == 1;
     }
 
@@ -105,7 +132,10 @@ public class PlankStorageSet {
                 this.planks+other.planks,
                 this.oaks+other.oaks,
                 this.teaks+other.teaks,
-                this.mahoganies+other.mahoganies
+                this.mahoganies+other.mahoganies,
+                this.rosewoods+other.rosewoods,
+                this.ironwoods+other.ironwoods,
+                this.camphors+other.camphors
         );
     }
 
@@ -120,12 +150,15 @@ public class PlankStorageSet {
                 this.planks-other.planks,
                 this.oaks-other.oaks,
                 this.teaks-other.teaks,
-                this.mahoganies-other.mahoganies
+                this.mahoganies-other.mahoganies,
+                this.rosewoods-other.rosewoods,
+                this.ironwoods-other.ironwoods,
+                this.camphors-other.camphors
         );
     }
 
     public int getRemainingSackSpace() {
-        return 28-(planks+oaks+teaks+mahoganies);
+        return 28-(planks+oaks+teaks+mahoganies+rosewoods+ironwoods+camphors);
     }
 
     public String toPrintableString() {
@@ -134,20 +167,37 @@ public class PlankStorageSet {
         if (planks!=0) {
             sb.append(planks).append(" planks");
             comma=true;
-        } if (oaks!=0) {
+        }
+        if (oaks!=0) {
             if (comma) sb.append(", ");
             sb.append(oaks).append(" oak planks");
             comma=true;
-        } if (teaks!=0) {
+        }
+        if (teaks!=0) {
             if (comma) sb.append(", ");
             sb.append(teaks).append(" teak planks");
             comma=true;
-        } if (mahoganies!=0) {
+        }
+        if (mahoganies!=0) {
             if (comma) sb.append(", ");
             sb.append(mahoganies).append(" mahogany planks");
             comma=true;
         }
-        return sb.append("").toString();
+        if (rosewoods != 0) {
+            if (comma) sb.append(", ");
+            sb.append(rosewoods).append(" rosewood planks");
+            comma = true;
+        }
+        if (ironwoods != 0) {
+            if (comma) sb.append(", ");
+            sb.append(ironwoods).append(" ironwood planks");
+            comma = true;
+        }
+        if (camphors != 0) {
+            if (comma) sb.append(", ");
+            sb.append(camphors).append(" camphor planks");
+        }
+        return sb.toString();
     }
 
     public String toOverlayString() {
@@ -155,9 +205,11 @@ public class PlankStorageSet {
         if (planks!=0) sb.append(planks).append(" plank\n");
         if (oaks!=0) sb.append(oaks).append(" oak\n");
         if (teaks!=0) sb.append(teaks).append(" teak\n");
-        if (mahoganies!=0) sb.append(mahoganies).append(" mahogany");
+        if (mahoganies!=0) sb.append(mahoganies).append(" mahogany\n");
+        if (rosewoods!=0) sb.append(rosewoods).append(" rosewood\n");
+        if (ironwoods!=0) sb.append(ironwoods).append(" ironwood\n");
+        if (camphors!=0) sb.append(camphors).append(" camphor");
         return sb.toString();
-
     }
 
     public PlankTier getMonoType( ) {
@@ -166,11 +218,14 @@ public class PlankStorageSet {
         if (oaks!=0) return PlankTier.OAK;
         if (teaks!=0) return PlankTier.TEAK;
         if (mahoganies!=0) return PlankTier.MAHOGANY;
+        if (rosewoods!=0) return PlankTier.ROSEWOOD;
+        if (ironwoods!=0) return PlankTier.IRONWOOD;
+        if (camphors!=0) return PlankTier.CAMPHOR;
         return PlankTier.UNKNOWN;
     }
 
     public int getTotalPlanks() {
-        return planks+oaks+teaks+mahoganies;
+        return planks+oaks+teaks+mahoganies+rosewoods+ironwoods+camphors;
     }
 
     /**
@@ -178,12 +233,9 @@ public class PlankStorageSet {
      * storage are negative.
      * @return
      */
-
-
     public boolean hasNegativeValues() {
-        return (planks<0||oaks<0||teaks<0||mahoganies<0);
+        return (planks<0||oaks<0||teaks<0||mahoganies<0||rosewoods<0||ironwoods<0||camphors<0);
     }
-
     /**
      * Returns the number of planks matching the given tier of plank
      * @return
@@ -194,6 +246,9 @@ public class PlankStorageSet {
             case OAK: return oaks;
             case TEAK: return teaks;
             case MAHOGANY: return mahoganies;
+            case ROSEWOOD: return rosewoods;
+            case IRONWOOD: return ironwoods;
+            case CAMPHOR: return camphors;
             default: return 0;
         }
     }

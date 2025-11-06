@@ -98,6 +98,21 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             brLength = tb.length();
         }
         tb.append(currentPlankSack.getMahoganies()>0?getOverlayTextFull(PlankTier.MAHOGANY, currentPlankSack)+"\n":"");
+        if (tb.length()>brLength) {
+            tb.append(Utils.br());
+            brLength = tb.length();
+        }
+        tb.append(currentPlankSack.getRosewoods()>0?getOverlayTextFull(PlankTier.ROSEWOOD, currentPlankSack)+"\n":"");
+        if (tb.length()>brLength) {
+            tb.append(Utils.br());
+            brLength = tb.length();
+        }
+        tb.append(currentPlankSack.getIronwoods()>0?getOverlayTextFull(PlankTier.IRONWOOD, currentPlankSack)+"\n":"");
+        if (tb.length()>brLength) {
+            tb.append(Utils.br());
+            brLength = tb.length();
+        }
+        tb.append(currentPlankSack.getCamphors()>0?getOverlayTextFull(PlankTier.CAMPHOR, currentPlankSack)+"\n":"");
         tooltipManager.add(new Tooltip(tb.toString()));
     }
 
@@ -129,6 +144,18 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), mahoganyImage);
             OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.MAHOGANY, currentSack), config.textColor());
         }
+        if (currentSack.getRosewoods()>0) {
+            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), mahoganyImage); //todo images
+            OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.ROSEWOOD, currentSack), config.textColor());
+        }
+        if (currentSack.getIronwoods()>0) {
+            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), mahoganyImage);
+            OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.IRONWOOD, currentSack), config.textColor());
+        }
+        if (currentSack.getCamphors()>0) {
+            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), mahoganyImage);
+            OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.CAMPHOR, currentSack), config.textColor());
+        }
     }
 
     private void renderWithoutIcons(Graphics2D graphics, Point startingXY) {
@@ -150,6 +177,18 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         }
         if (currentSack.getMahoganies()>0) {
             OverlayUtil.renderTextLocation(graphics, new Point(x, y), getOverlayTextByConfig(PlankTier.MAHOGANY, currentSack), config.textColor());
+            y+=10;
+        }
+        if (currentSack.getRosewoods()>0) {
+            OverlayUtil.renderTextLocation(graphics, new Point(x, y), getOverlayTextByConfig(PlankTier.ROSEWOOD, currentSack), config.textColor());
+            y+=10;
+        }
+        if (currentSack.getIronwoods()>0) {
+            OverlayUtil.renderTextLocation(graphics, new Point(x, y), getOverlayTextByConfig(PlankTier.IRONWOOD, currentSack), config.textColor());
+            y+=10;
+        }
+        if (currentSack.getCamphors()>0) {
+            OverlayUtil.renderTextLocation(graphics, new Point(x, y), getOverlayTextByConfig(PlankTier.CAMPHOR, currentSack), config.textColor());
         }
     }
 
@@ -161,9 +200,15 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             case OAK:
                 return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Oak planks");
             case TEAK:
-                return Utils.white(padTwo(storage.getTierAmount(tier)))  + Utils.yellow(" Teak planks");
+                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Teak planks");
             case MAHOGANY:
-                return Utils.white(padTwo(storage.getTierAmount(tier)))  + Utils.yellow(" Mahogany planks");
+                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Mahogany planks");
+            case ROSEWOOD:
+                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Rosewood planks");
+            case IRONWOOD:
+                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Ironwood planks");
+            case CAMPHOR:
+                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Camphor planks");
         }
         return "";
     }
@@ -187,6 +232,12 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                         return "T:" + storage.getTierAmount(tier);
                     case MAHOGANY:
                         return "M:" + storage.getTierAmount(tier);
+                    case ROSEWOOD:
+                        return "R:" + storage.getTierAmount(tier);
+                    case IRONWOOD:
+                        return "I:" + storage.getTierAmount(tier);
+                    case CAMPHOR:
+                        return "C:" + storage.getTierAmount(tier);
                 }
             case FULL:
                 switch (tier) {
@@ -198,6 +249,12 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                         return "Teaks:\t" + storage.getTierAmount(tier);
                     case MAHOGANY:
                         return "Mahogany:\t" + storage.getTierAmount(tier);
+                    case ROSEWOOD:
+                        return "Rosewood:\t" + storage.getTierAmount(tier);
+                    case IRONWOOD:
+                        return "Ironwood:\t" + storage.getTierAmount(tier);
+                    case CAMPHOR:
+                        return "Camphor:\t" + storage.getTierAmount(tier);
                 }
         }
         return "";

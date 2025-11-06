@@ -12,6 +12,7 @@ import java.util.Map;
 @Slf4j
 public final class Constants {
     public static final String CAST_MENU_OPTION = "Cast";
+    public static final String CHECK_STRING_OPTION = "Check";
     /**
      * Map of the plank costs of each mahogany homes build location
      */

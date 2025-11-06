@@ -59,6 +59,8 @@ public class SackTrackerPlugin extends Plugin {
 
     public static final String PLUGIN_GROUP_ID = "planksacktracker";
 
+    private ChatPlankUpdateHandler chatUpdateHandler;
+
     @Override
     protected void startUp() throws Exception {
         sackManager = new PlankSackManager(this);
@@ -206,9 +208,21 @@ public class SackTrackerPlugin extends Plugin {
         if (chatEvent.getType() != ChatMessageType.GAMEMESSAGE) {
             return;
         }
+        if (!client.getItemContainer(InventoryID.INV).contains(ItemID.PLANK_SACK)) {
+            log.debug("Skipping chat message because no plank sack is present in the inventory");
+        }
+
         String msg = chatEvent.getMessage();
-        if (msg.startsWith("Basic\u00A0planks:")) {
-            sackManager.updateContentsFromLog(Utils.parsePlankSackChatLog(msg));
+
+        try {
+            var result = chatUpdateHandler.parseChatMessage(msg, client.getTickCount());
+            if (result.isMonoContent()) {
+                sackManager.updatePlankTierFromLog(result);
+            } else {
+                log.debug("Received a matching chat update but it didn't resolve to planks!: {}", msg);
+            }
+        } catch (IllegalArgumentException e) {
+            //If it doesn't parse, we just assume it's not a plank message update and move on.
         }
     }
 
@@ -238,7 +252,7 @@ public class SackTrackerPlugin extends Plugin {
         ItemContainer c = client.getItemContainer(InventoryID.INV);
 
         if (c != null) {
-            PlankStorageSet newInventory = new PlankStorageSet(c.count(ItemID.WOODPLANK), c.count(ItemID.PLANK_OAK), c.count(ItemID.PLANK_TEAK), c.count(ItemID.PLANK_MAHOGANY));
+            PlankStorageSet newInventory = new PlankStorageSet(c.count(ItemID.WOODPLANK), c.count(ItemID.PLANK_OAK), c.count(ItemID.PLANK_TEAK), c.count(ItemID.PLANK_MAHOGANY), 0,0,0); //todo FIX WHEN NEW ITEMIDS
             GenericBuildEvent newBuildEvent = new GenericBuildEvent(sackManager.getMostRecentXPDrop(), newInventory, client.getTickCount());
             sackManager.runQueuedBuild(newBuildEvent); //TODO these are not always MH builds
         } else {
@@ -316,7 +330,7 @@ public class SackTrackerPlugin extends Plugin {
             sackManager.setMostRecentAction(PlayerAction.CONSTRUCT);
             ItemContainer curInv = client.getItemContainer(InventoryID.INV);
             if (curInv != null) {
-                sackManager.updatePlayerInventory(new PlankStorageSet(curInv.count(ItemID.WOODPLANK), curInv.count(ItemID.PLANK_OAK), curInv.count(ItemID.PLANK_TEAK), curInv.count(ItemID.PLANK_MAHOGANY)));
+                sackManager.updatePlayerInventory(new PlankStorageSet(curInv.count(ItemID.WOODPLANK), curInv.count(ItemID.PLANK_OAK), curInv.count(ItemID.PLANK_TEAK), curInv.count(ItemID.PLANK_MAHOGANY), 0,0,0)); //TODO update when new planks
             }
             var guessedPair = sackManager.getProbableMHPlankUsage(mhCost, null);
             PlankStorageSet plankCost = guessedPair.getOne();
@@ -432,7 +446,7 @@ public class SackTrackerPlugin extends Plugin {
 
         //If we're "use" item but all we did was highlight one, then we know we're not doing anything interesting.
         if (event.getMenuOption().equals(Constants.USE_STRING_OPTION) && event.getMenuAction()!=MenuAction.WIDGET_TARGET_ON_WIDGET) return;
-        var useType = getItemUseType(event);
+        var useType = getItemUseType(event); //TODO MAKE SURE THIS WORKS
         switch (useType) {
             case USE_SACK_WITH_PLANK:
             case FILL_SACK:
@@ -440,6 +454,11 @@ public class SackTrackerPlugin extends Plugin {
                 var inv = client.getItemContainer(InventoryID.INV);
                 if (inv!=null) log.debug(PlankStorageSet.createFromInventory(inv).toPrintableString());
                 if (inv!=null) sackManager.setExpectingPlankSackInventoryChangeViaClickingSack(true, PlankStorageSet.createFromInventory(inv));
+                break;
+            case CHECK_SACK:
+                log.debug("Logged a check click");
+                this.chatUpdateHandler = new ChatPlankUpdateHandler();
+                sackManager.resetPlankSackForChecking();
                 break;
         }
 
@@ -462,6 +481,9 @@ public class SackTrackerPlugin extends Plugin {
         }
         if (event.getMenuOption().equals(Constants.EMPTY_STRING_OPTION)) {
             useType=(event.getItemId()==ItemID.PLANK_SACK)?ItemUseType.EMPTY_SACK:useType;
+        }
+        if (event.getMenuOption().equals(Constants.CHECK_STRING_OPTION)) {
+            useType=(event.getItemId()==ItemID.PLANK_SACK)?ItemUseType.CHECK_SACK:useType;
         }
         return useType;
     }
