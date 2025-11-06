@@ -20,7 +20,6 @@ public class Utils {
 
     /**
      * Returns true if every var-arg provided is not null
-     * @param objects
      */
     public static boolean allNotNull(Object... objects) {
         for (var o : objects) {

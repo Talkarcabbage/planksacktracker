@@ -41,7 +41,6 @@ public class PlankStorageSet {
 
     /**
      * Returns true if every plank value in this storage set is 0
-     * @return
      */
     public boolean isEmpty() {
         return planks == 0 && oaks == 0 && teaks == 0 && mahoganies == 0;
