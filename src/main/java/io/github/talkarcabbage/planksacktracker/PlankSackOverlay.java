@@ -23,6 +23,10 @@ public class PlankSackOverlay extends WidgetItemOverlay {
     private BufferedImage oakImage;
     private BufferedImage teakImage;
     private BufferedImage mahoganyImage;
+    private BufferedImage rosewoodImage;
+    private BufferedImage ironwoodImage;
+    private BufferedImage camphorImage;
+
     private SackTrackerPlugin trackerPlugin;
 
     private boolean overlayIconsWorking = false;
@@ -38,7 +42,11 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         oakImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/oak_small.png");
         teakImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/teak_small.png");
         mahoganyImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/mahogany_small.png");
-        if (Utils.allNotNull(plankImage, oakImage, teakImage, mahoganyImage)) {
+        rosewoodImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/rosewood_small.png");
+        ironwoodImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/ironwood_small.png");
+        camphorImage = ImageUtil.loadImageResource(PlankSackOverlay.class, "/camphor_small.png");
+
+        if (Utils.allNotNull(plankImage, oakImage, teakImage, mahoganyImage, rosewoodImage, ironwoodImage, camphorImage)) {
             overlayIconsWorking = true;
         }
         this.tooltipManager = tooltipManager;
@@ -103,7 +111,6 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         tb.append(currentPlankSack.getIronwoods()>0?getOverlayTextFull(PlankTier.IRONWOOD, currentPlankSack)+"\n":"");
         if (tb.length()>brLength) {
             tb.append(Utils.br());
-            brLength = tb.length();
         }
         tb.append(currentPlankSack.getCamphors()>0?getOverlayTextFull(PlankTier.CAMPHOR, currentPlankSack)+"\n":"");
         tooltipManager.add(new Tooltip(tb.toString()));
@@ -138,15 +145,15 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.MAHOGANY, currentSack), config.textColor());
         }
         if (currentSack.getRosewoods()>0) {
-            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), mahoganyImage); //todo images
+            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), rosewoodImage);
             OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.ROSEWOOD, currentSack), config.textColor());
         }
         if (currentSack.getIronwoods()>0) {
-            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), mahoganyImage);
+            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), ironwoodImage);
             OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.IRONWOOD, currentSack), config.textColor());
         }
         if (currentSack.getCamphors()>0) {
-            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), mahoganyImage);
+            OverlayUtil.renderImageLocation(graphics, new Point(x,y-12), camphorImage);
             OverlayUtil.renderTextLocation(graphics, new Point(x+10, y), getOverlayTextByConfig(PlankTier.CAMPHOR, currentSack), config.textColor());
         }
     }
