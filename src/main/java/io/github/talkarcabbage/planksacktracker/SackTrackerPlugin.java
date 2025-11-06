@@ -18,10 +18,11 @@ import net.runelite.client.ui.overlay.tooltip.TooltipManager;
 
 import javax.inject.Inject;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.github.talkarcabbage.planksacktracker.Confidence.LOW;
+import static io.github.talkarcabbage.planksacktracker.Confidence.NONE;
 import static io.github.talkarcabbage.planksacktracker.Constants.*;
 
 @Slf4j
@@ -317,18 +318,33 @@ public class SackTrackerPlugin extends Plugin {
             if (curInv != null) {
                 sackManager.updatePlayerInventory(new PlankStorageSet(curInv.count(ItemID.WOODPLANK), curInv.count(ItemID.PLANK_OAK), curInv.count(ItemID.PLANK_TEAK), curInv.count(ItemID.PLANK_MAHOGANY)));
             }
-            PlankStorageSet plankCost = sackManager.getProbableMHPlankUsage(mhCost, null);
+            var guessedPair = sackManager.getProbableMHPlankUsage(mhCost, null);
+            PlankStorageSet plankCost = guessedPair.getOne();
+            switch (guessedPair.getTwo()) {
+                case HIGH:
+                    break;
+                case LOW:
+                    if (sackManager.getContentsConfidence()!=NONE) {
+                        sackManager.setContentsConfidence(LOW);
+                    }
+                    break;
+                case NONE:
+                    sackManager.setContentsConfidence(NONE);
+                    break;
+                default:
+                    log.info("Confidence parsing wasn't updated to support:{}", guessedPair.getTwo());
+            }
             if (plankCost.isEmpty()) {
                 return;
             }
 
             switch (menuOption) {
                 case Constants.MENU_BUILD_TEXT:
-                    sackManager.addBuildEventToQueue(new MahoganyHomesBuildQueueEvent(plankCost, client.getTickCount()));
+                    sackManager.addBuildEventToQueue(new MahoganyHomesBuildQueueEvent(plankCost, client.getTickCount(), guessedPair.getTwo()));
                     log.debug("Added a build event");
                     break;
                 case Constants.MENU_REPAIR_TEXT:
-                    sackManager.addBuildEventToQueue(new MahoganyHomesRepairQueueEvent(plankCost, client.getTickCount()));
+                    sackManager.addBuildEventToQueue(new MahoganyHomesRepairQueueEvent(plankCost, client.getTickCount(), guessedPair.getTwo()));
                     log.debug("Added a repair event");
                     break;
                 default:

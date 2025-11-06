@@ -1,5 +1,6 @@
 package io.github.talkarcabbage.planksacktracker.plankcost;
 
+import io.github.talkarcabbage.planksacktracker.Confidence;
 import io.github.talkarcabbage.planksacktracker.PlankStorageSet;
 
 /**
@@ -9,4 +10,5 @@ public interface GenericPlankBuildQueueEvent {
     XP getExpectedXP(double modifierRatio);
     PlankStorageSet getPlankCost();
     int getServerTick();
+    Confidence getConfidence();
 }

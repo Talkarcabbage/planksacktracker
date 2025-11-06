@@ -1,5 +1,6 @@
 package io.github.talkarcabbage.planksacktracker.plankcost;
 
+import io.github.talkarcabbage.planksacktracker.Confidence;
 import io.github.talkarcabbage.planksacktracker.PlankStorageSet;
 import lombok.Getter;
 
@@ -7,12 +8,13 @@ import static io.github.talkarcabbage.planksacktracker.Constants.*;
 
 public class MahoganyHomesBuildQueueEvent implements GenericPlankBuildQueueEvent {
     PlankStorageSet cost;
-    @Getter
-    int currentTick;
+    private int currentTick;
+    private Confidence confidence;
 
-    public MahoganyHomesBuildQueueEvent(PlankStorageSet cost, int currentTick) {
+    public MahoganyHomesBuildQueueEvent(PlankStorageSet cost, int currentTick, Confidence confidence) {
         this.cost=cost;
         this.currentTick = currentTick;
+        this.confidence = confidence;
     }
 
     /**
@@ -40,6 +42,11 @@ public class MahoganyHomesBuildQueueEvent implements GenericPlankBuildQueueEvent
     @Override
     public int getServerTick() {
         return currentTick;
+    }
+
+    @Override
+    public Confidence getConfidence() {
+        return this.confidence;
     }
 
 }

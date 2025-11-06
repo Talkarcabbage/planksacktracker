@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import static io.github.talkarcabbage.planksacktracker.Confidence.*;
 import static io.github.talkarcabbage.planksacktracker.SackTrackerPlugin.PLUGIN_GROUP_ID;
 
 @Slf4j
@@ -67,6 +68,8 @@ public class PlankSackManager {
     private PlankTier mahoganyHomesContractTier = PlankTier.UNKNOWN;
     private PlankTier mostRecentlyDetectedUsedPlank = PlankTier.UNKNOWN;
     private PlankTier mostRecentlyGuessedPlankFromXP = PlankTier.UNKNOWN;
+
+    private Confidence plankSackContentConfidence = NONE;
 
     public PlankSackManager(SackTrackerPlugin plugin) {
         this.plugin = plugin;
@@ -151,6 +154,15 @@ public class PlankSackManager {
     public boolean shouldDisplayQuestionMark() {
         return plankSackContentsNeedManualUpdate;
     }
+    public boolean isConfidenceLow() {
+        return plankSackContentConfidence != HIGH;
+    }
+    public void setContentsConfidence(Confidence confidence) {
+        this.plankSackContentConfidence = confidence;
+    }
+    public Confidence getContentsConfidence() {
+        return this.plankSackContentConfidence;
+    }
 
     /**
      * Adds a plank build queue to the pending queue events. We generally use this to make sure that our
@@ -167,7 +179,7 @@ public class PlankSackManager {
      * @param newInventory
      * @return
      */
-    public PlankStorageSet getProbableMHPlankUsage(int plankCount, @Nullable PlankStorageSet newInventory) {
+    public Pair<PlankStorageSet, Confidence> getProbableMHPlankUsage(int plankCount, @Nullable PlankStorageSet newInventory) {
         return getProbableMHPlankUsage(plankCount, newInventory,null, 0);
     }
 
@@ -180,7 +192,7 @@ public class PlankSackManager {
      * @param xpModifier
      * @return
      */
-    public PlankStorageSet getProbableMHPlankUsage(int plankCount, @Nullable PlankStorageSet newInventory, @Nullable XP xpGained, double xpModifier) {
+    public Pair<PlankStorageSet, Confidence> getProbableMHPlankUsage(int plankCount, @Nullable PlankStorageSet newInventory, @Nullable XP xpGained, double xpModifier) {
         //In some circumstances, we will have XP drops available to help determine plank types.
         //If we are provided a new inventory, figure out the difference if any.
         PlankStorageSet diff = null;
@@ -192,47 +204,47 @@ public class PlankSackManager {
         // It means we almost certainly just used up an inventory plank since
         // The build option should be refreshing the cached inventory contents when clicked
         if (diff!=null && diff.isMonoContent()) {
-            return PlankStorageSet.createFromTier(plankCount, diff.getMonoType());
+            return new Pair<>(PlankStorageSet.createFromTier(plankCount, diff.getMonoType()), HIGH);
+        }
+
+        //If we know it's only one type of plank in the sack AND we know the contents aren't empty
+        if (currentPlankSack.isMonoContent()) {
+            return new Pair<>(PlankStorageSet.createFromTier(plankCount, currentPlankSack.getMonoType()), HIGH);
         }
 
         // If we were provided the XP drop from the build, and it directly lines up with one of the plank types
         if (xpGained!=null) {
             var expected = Utils.expectedMHPlankFromXP(Utils.getCurrentXPModifier(plugin), xpGained);
             if (!expected.equals(PlankTier.UNKNOWN)) {
-                return PlankStorageSet.createFromTier(plankCount, expected);
+                return new Pair<>(PlankStorageSet.createFromTier(plankCount, expected), LOW);
             }
         }
 
         //If we know what the contract is
         mahoganyHomesContractTier = ExternalInteractions.getCurrentMHPluginContractTier(plugin.configManager);
         if (mahoganyHomesContractTier != PlankTier.UNKNOWN) {
-            return PlankStorageSet.createFromTier(plankCount, mahoganyHomesContractTier);
-        }
-
-        //If we know it's only one type of plank in the sack AND we know the contents aren't empty
-        if (currentPlankSack.isMonoContent()) {
-            return PlankStorageSet.createFromTier(plankCount, currentPlankSack.getMonoType());
+            return new Pair<>(PlankStorageSet.createFromTier(plankCount, mahoganyHomesContractTier), LOW);
         }
 
         //If we only have a certain type of plank in the inventory and the planksack contents don't make it clear
         if (preBuildInventoryContents.isMonoContent()) {
-            return PlankStorageSet.createFromTier(plankCount, preBuildInventoryContents.getMonoType());
+            return new Pair<>(PlankStorageSet.createFromTier(plankCount, preBuildInventoryContents.getMonoType()), NONE);
         }
 
-        //The only things left to go on is what we used up last time or guesses by xp
+        //The only things left to go on is what we used up last time...
         if (mostRecentlyDetectedUsedPlank!= PlankTier.UNKNOWN) {
             //mahoganyHomesContractTier = mostRecentlyDetectedUsedPlank;
-            return PlankStorageSet.createFromTier(plankCount, mostRecentlyDetectedUsedPlank);
+            return new Pair<>(PlankStorageSet.createFromTier(plankCount, mostRecentlyDetectedUsedPlank), NONE);
         }
 
-        //Guessing by xp from previous attempts
+        //...Or guessing by xp from previous attempts
         if (mostRecentlyGuessedPlankFromXP != PlankTier.UNKNOWN) {
-            return PlankStorageSet.createFromTier(plankCount, mostRecentlyGuessedPlankFromXP);
+            return new Pair<>(PlankStorageSet.createFromTier(plankCount, mostRecentlyGuessedPlankFromXP), NONE);
         }
 
         //If all else fails and we don't even know what we used before
         //plankSackContentsNeedManualUpdate=true;
-        return new PlankStorageSet(0,0,0,0);
+        return new Pair<>(new PlankStorageSet(0,0,0,0), NONE);
     }
 
     /**
@@ -276,6 +288,7 @@ public class PlankSackManager {
     }
 
     private void processMahoganyHomesBuildEvent(GenericBuildEvent buildEvent) {
+        //TODO confidence implementation
         PlankStorageSet newInven = buildEvent.getInventoryAfterBuild();
         GenericPlankBuildQueueEvent mostRecentMatchingQueueEvent;
         boolean xpMatches = false;
@@ -301,7 +314,7 @@ public class PlankSackManager {
             }
             var guessedCostByXP = Utils.expectedCostFromXP(1, buildEvent.getXPDrop(), currentPlankSack);
             if (guessedCostByXP.isMonoContent()) {
-                mostRecentMatchingQueueEvent = new MahoganyHomesBuildQueueEvent(guessedCostByXP, buildEvent.getServerTick());
+                mostRecentMatchingQueueEvent = new MahoganyHomesBuildQueueEvent(guessedCostByXP, buildEvent.getServerTick(), LOW);
             } else {
                 plankSackContentsNeedManualUpdate = true;
                 return;
@@ -326,14 +339,17 @@ public class PlankSackManager {
             }
         }
         if (!xpMatches) {
-            log.info("Received a plank build event with no XP match: {} vs expected: {}", buildEvent.getXPDrop(), mostRecentMatchingQueueEvent.getExpectedXP(1));
+            log.debug("Received a plank build event with no XP match: {} vs expected: {}", buildEvent.getXPDrop(), mostRecentMatchingQueueEvent.getExpectedXP(1));
         }
+        var probablePair = getProbableMHPlankUsage(mostRecentMatchingQueueEvent.getPlankCost().getTotalPlanks(), buildEvent.getInventoryAfterBuild());
 
-        PlankStorageSet probableDetected = getProbableMHPlankUsage(mostRecentMatchingQueueEvent.getPlankCost().getTotalPlanks(), buildEvent.getInventoryAfterBuild());
+        PlankStorageSet probableDetected = probablePair.getOne();
+        var queueConfidence = mostRecentMatchingQueueEvent.getConfidence();
+
         PlankTier probableDetectedType = probableDetected.getMonoType();
         PlankTier expectedType = mostRecentMatchingQueueEvent.getPlankCost().getMonoType();
 
-        if (probableDetectedType!=expectedType) {
+        if (queueConfidence!=HIGH && probableDetectedType!=expectedType) {
             plugin.getChatManager().sendStaticMessage(ChatMessageManager.WRONG_TYPE_DETECTED_MH);
             plankSackContentsNeedManualUpdate = true;
         }

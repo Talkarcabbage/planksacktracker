@@ -1,5 +1,6 @@
 package io.github.talkarcabbage.planksacktracker.plankcost;
 
+import io.github.talkarcabbage.planksacktracker.Confidence;
 import io.github.talkarcabbage.planksacktracker.PlankStorageSet;
 
 public class BuildMenuBuildQueueEvent implements GenericPlankBuildQueueEvent {
@@ -25,5 +26,10 @@ public class BuildMenuBuildQueueEvent implements GenericPlankBuildQueueEvent {
     @Override
     public int getServerTick() {
         return currentTick;
+    }
+
+    @Override
+    public Confidence getConfidence() {
+        return Confidence.HIGH;
     }
 }
