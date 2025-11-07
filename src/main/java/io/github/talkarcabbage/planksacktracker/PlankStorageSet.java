@@ -4,9 +4,13 @@ package io.github.talkarcabbage.planksacktracker;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 @Getter
 @Slf4j
-public class PlankStorageSet {
+public class PlankStorageSet implements Iterable<Entry<PlankTier, Integer>>{
     private final int planks;
     private final int oaks;
     private final int teaks;
@@ -28,6 +32,10 @@ public class PlankStorageSet {
      * Returns true if the storage set only contains one type of plank
      */
     public boolean isMonoContent() {
+        return countTypes()==1;
+    }
+
+    public int countTypes() {
         int count = 0;
         if (planks != 0) count++;
         if (oaks != 0) count++;
@@ -36,14 +44,14 @@ public class PlankStorageSet {
         if (rosewoods != 0) count++;
         if (ironwoods != 0) count++;
         if (camphors != 0) count++;
-        return count == 1;
+        return count;
     }
 
     /**
      * Returns true if every plank value in this storage set is 0
      */
     public boolean isEmpty() {
-        return planks == 0 && oaks == 0 && teaks == 0 && mahoganies == 0;
+        return planks == 0 && oaks == 0 && teaks == 0 && mahoganies == 0 && rosewoods==0&&ironwoods==0&&camphors==0;
     }
 
     public int getRemainingSackSpace() {
@@ -130,6 +138,26 @@ public class PlankStorageSet {
             case IRONWOOD: return ironwoods;
             case CAMPHOR: return camphors;
             default: return 0;
+        }
+    }
+    @Override
+    public Iterator<Entry<PlankTier, Integer>> iterator() {
+        List<Entry<PlankTier, Integer>> nonZeroEntries = new ArrayList<>();
+
+        addToIteratorIfPresent(nonZeroEntries, PlankTier.PLANK, planks);
+        addToIteratorIfPresent(nonZeroEntries, PlankTier.OAK, oaks);
+        addToIteratorIfPresent(nonZeroEntries, PlankTier.TEAK, teaks);
+        addToIteratorIfPresent(nonZeroEntries, PlankTier.MAHOGANY, mahoganies);
+        addToIteratorIfPresent(nonZeroEntries, PlankTier.ROSEWOOD, rosewoods);
+        addToIteratorIfPresent(nonZeroEntries, PlankTier.IRONWOOD, ironwoods);
+        addToIteratorIfPresent(nonZeroEntries, PlankTier.CAMPHOR, camphors);
+
+        return nonZeroEntries.iterator();
+    }
+
+    private void addToIteratorIfPresent(List<Entry<PlankTier, Integer>> list, PlankTier tier, int value) {
+        if (value != 0) {
+            list.add(new Entry<>(tier, value));
         }
     }
 

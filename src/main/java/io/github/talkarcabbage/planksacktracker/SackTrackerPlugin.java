@@ -18,16 +18,6 @@ import javax.inject.Inject;
 )
 public class SackTrackerPlugin extends Plugin {
 
-    /*
-    For anyone that needs to know while reading through this code:
-    The plugin updates the configManager via
-    plugin.configManager.setRSProfileConfiguration(PLUGIN_GROUP_ID, SackTrackerConfig.PLANK_SACK_TRACKER_CONFIG_SACK_CONTENTS_KEY, list);
-    to reflect the contents of the planksack whenever a change is detected.
-    It is cleared if the plugin shuts down.
-    It is set to an empty list IF the contents are unknown.
-    Else it is in the format: [Planks, Oaks, Teaks, Mahoganies] (even if the particular type of plank is 0)
-     */
-
     @Inject
     protected Client client;
     @Inject
