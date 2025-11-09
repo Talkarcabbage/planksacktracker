@@ -18,7 +18,7 @@ public interface SackTrackerConfig extends Config {
     String PLANK_NAMES = "planknames";
     String DISPLAY_ZERO = "displayzerowhenempty";
     String DISABLE_ICON_WHEN_EMPTY = "disableiconwhenempty";
-    String DISABLE_ICON_FOR_ONE_BIG_NUMBER = "disableonebignumbericon";
+    String ENABLE_ICON_FOR_ONE_BIG_NUMBER = "disableonebignumbericon";
     String ALWAYS_DISABLE_LABELS_IN_GRID = "disablelabelsingrid";
 
     @ConfigItem(
@@ -37,31 +37,32 @@ public interface SackTrackerConfig extends Config {
     default Color numberColor() { return Color.YELLOW; }
 
     @ConfigItem(
-            keyName = PLANK_ICONS,
-            name="Overlay Icons",
-            description = "Enable or disable the plank icons on the overlay.",
-            position = 3
-    )
-    default boolean showOverlayIcons() { return true; }
-
-    @ConfigItem(
             keyName = OVERLAY_STYLE,
-            name="Overlay Style",
+            name="Overlay style",
             description = "Change the style of how the overlay renders. The default is dynamic, which changes based on how many different types of planks are in the sack.",
-            position = 4
+            position = 3
     )
     default OverlayStyle overlayStyle() {
         return OverlayStyle.DYNAMIC;
     }
 
     @ConfigItem(
+            keyName = PLANK_ICONS,
+            name="Show overlay plank icons",
+            description = "Enable or disable the plank icons on the overlay.",
+            position = 4
+    )
+    default boolean showOverlayIcons() { return true; }
+
+
+    @ConfigItem(
             keyName = PLANK_NAMES,
-            name = "Plank Name Display",
+            name = "Plank name display",
             description =  "How, and whether, to display the names of each plank in the plank sack on the overlay.",
             position = 5
     )
     default OverlayTextType textType() {
-        return OverlayTextType.FULL;
+        return OverlayTextType.LONG;
     }
 
     @ConfigItem(
@@ -85,18 +86,18 @@ public interface SackTrackerConfig extends Config {
     }
 
     @ConfigItem(
-            keyName = DISABLE_ICON_FOR_ONE_BIG_NUMBER,
-            name = "Disable Icons for One Big Number",
+            keyName = ENABLE_ICON_FOR_ONE_BIG_NUMBER,
+            name = "Enable icons for One Big Number",
             description =  "Hides the plank icon for the 'one big number' style even when icons are enabled.",
             position = 8
     )
-    default boolean disableIconOneBigNumber() {
+    default boolean enableIconOneBigNumber() {
         return true;
     }
 
     @ConfigItem(
             keyName = ALWAYS_DISABLE_LABELS_IN_GRID,
-            name = "Always Hide Labels In Grid",
+            name = "Always hide labels in grids",
             description =  "Hides labels when using the grid view, regardless of if they are enabled. Highly recommended to leave on for usability for those display types.",
             position = 9
     )

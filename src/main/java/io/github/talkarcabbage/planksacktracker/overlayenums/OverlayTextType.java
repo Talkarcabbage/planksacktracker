@@ -2,6 +2,6 @@ package io.github.talkarcabbage.planksacktracker.overlayenums;
 
 public enum OverlayTextType {
     NONE,
-    ABBREVIATED,
-    FULL
+    LETTER,
+    LONG
 }

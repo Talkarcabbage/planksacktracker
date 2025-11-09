@@ -15,6 +15,9 @@ import net.runelite.client.util.ImageUtil;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 import static io.github.talkarcabbage.planksacktracker.overlayenums.OverlayTextType.NONE;
 
@@ -32,8 +35,8 @@ public class PlankSackOverlay extends WidgetItemOverlay {
     private final BufferedImage ironwoodImage;
     private final BufferedImage camphorImage;
 
-    private final int abbreviatedWidthBuffer = 11;
-    private final int nonAbbreviatedWidthBuffer = 40;
+    private static final int abbreviatedWidthBuffer = 12;
+    private static final int nonAbbreviatedWidthBuffer = 36;
 
     TooltipManager tooltipManager;
 
@@ -248,7 +251,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         switch (type) {
             case NONE:
                 return "";
-            case ABBREVIATED:
+            case LETTER:
                 switch (tier) {
                     case PLANK:
                         return "P:";
@@ -265,7 +268,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                     case CAMPHOR:
                         return "C:";
                 }
-            case FULL:
+            case LONG:
                 switch (tier) {
                     case PLANK:
                         return "Planks:\t";
@@ -305,6 +308,8 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         int startingDrawX = widgetItem.getCanvasLocation().getX();
         int startingDrawY = widgetItem.getCanvasLocation().getY() + 24;
         BufferedImage image = null;
+        var horizontalOffset = (currentPlankSack.getTotalPlanks()>9?-1:1);
+
         if (config.showOverlayIcons()) {
             if (currentPlankSack.isMonoContent()) {
                 image = getIconForTier(currentPlankSack.getMonoType());
@@ -313,15 +318,16 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             }
         }
         if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
-            if (image!=null && !config.disableIconWhenEmpty() && !config.disableIconOneBigNumber()) {
-                OverlayUtil.renderImageLocation(graphics, new Point(startingDrawX-2, startingDrawY-(graphics.getFontMetrics().getHeight()-2)), image);
+            if (image!=null && !config.disableIconWhenEmpty() && config.enableIconOneBigNumber()) {
+                OverlayUtil.renderImageLocation(graphics, new Point(startingDrawX+horizontalOffset, startingDrawY-(graphics.getFontMetrics().getHeight()-2)), image);
             }
-            drawStringThickShadowed(graphics, FontManager.getRunescapeFont(), "0", startingDrawX+9, startingDrawY, config.numberColor());
+            drawStringThickShadowed(graphics, FontManager.getRunescapeFont(), "0", startingDrawX+9+horizontalOffset, startingDrawY, config.numberColor());
         } else if (!currentPlankSack.isEmpty()){
-            if (image!=null && !config.disableIconOneBigNumber()) {
-                OverlayUtil.renderImageLocation(graphics, new Point(startingDrawX-2, startingDrawY-(graphics.getFontMetrics().getHeight()-2)), image);
+            if (image!=null && config.enableIconOneBigNumber()) {
+                drawStackedPlankIcons(graphics, startingDrawX+horizontalOffset, startingDrawY-(graphics.getFontMetrics().getHeight()-2), currentPlankSack) ;
+                //OverlayUtil.renderImageLocation(graphics, new Point(startingDrawX+horizontalOffset, startingDrawY-(graphics.getFontMetrics().getHeight()-2)), image);
             }
-            drawStringThickShadowed(graphics, FontManager.getRunescapeFont(), ""+currentPlankSack.getTotalPlanks(), startingDrawX+9, startingDrawY, config.numberColor());
+            drawStringThickShadowed(graphics, FontManager.getRunescapeFont(), ""+currentPlankSack.getTotalPlanks(), startingDrawX+9+horizontalOffset, startingDrawY, config.numberColor());
         }
     }
 
@@ -337,7 +343,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                 drawVertical(graphics, widgetItem);
                 break;
             case 4:
-                drawGridHorizontal(graphics, widgetItem);
+                drawGridVertical(graphics, widgetItem);
                 break;
             case 5:
             case 6:
@@ -353,7 +359,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         var font = FontManager.getRunescapeSmallFont();
         var currentSack = manager.getCurrentPlankSack();
         boolean columnFinished = false;
-        var x = widgetItem.getCanvasLocation().getX()-4;
+        var x = widgetItem.getCanvasLocation().getX()-2;
         var y = widgetItem.getCanvasLocation().getY() + 10;
         var labelWidth = config.textType()==NONE?0:abbreviatedWidthBuffer;
         if (config.alwaysDisableLabelsInGrid()) labelWidth=0;
@@ -363,14 +369,14 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             String label = null;
             BufferedImage image = config.showOverlayIcons()?getIconForTier(nextPlank.getKey()):null;
             if (config.textType()!=NONE && !config.alwaysDisableLabelsInGrid()) {
-                label = getOverlayTextByConfig(nextPlank.getKey(), currentSack, OverlayTextType.ABBREVIATED);
+                label = getOverlayTextByConfig(nextPlank.getKey(), currentSack, OverlayTextType.LETTER);
             }
             if (columnFinished) {
-                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+20, y+(20*row), labelWidth );
+                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+21, y+(14*row), labelWidth, false);
                 row++;
                 columnFinished = false;
             } else {
-                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x, y+(18*row), labelWidth );
+                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x, y+(14*row), labelWidth, false );
                 columnFinished = true;
             }
         }
@@ -380,7 +386,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         var font = FontManager.getRunescapeSmallFont();
         var currentSack = manager.getCurrentPlankSack();
         boolean rowFinished = false;
-        var x = widgetItem.getCanvasLocation().getX()-4;
+        var x = widgetItem.getCanvasLocation().getX()-2;
         var y = widgetItem.getCanvasLocation().getY() + 10;
         var labelWidth = config.textType()==NONE?0:abbreviatedWidthBuffer;
         if (config.alwaysDisableLabelsInGrid()) labelWidth=0;
@@ -390,14 +396,14 @@ public class PlankSackOverlay extends WidgetItemOverlay {
             String label = null;
             BufferedImage image = config.showOverlayIcons()?getIconForTier(nextPlank.getKey()):null;
             if (config.textType()!=NONE && !config.alwaysDisableLabelsInGrid()) {
-                label = getOverlayTextByConfig(nextPlank.getKey(), currentSack, OverlayTextType.ABBREVIATED);
+                label = getOverlayTextByConfig(nextPlank.getKey(), currentSack, OverlayTextType.LETTER);
             }
             if (rowFinished) {
-                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+(20*column), y+18, labelWidth );
+                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+(21*column), y+18, labelWidth, false);
                 column++;
                 rowFinished = false;
             } else {
-                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+(20*column), y, labelWidth );
+                drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+(21*column), y, labelWidth, false );
                 rowFinished = true;
             }
         }
@@ -408,17 +414,22 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         var currentSack = manager.getCurrentPlankSack();
         var x = widgetItem.getCanvasLocation().getX()-4;
         var y = widgetItem.getCanvasLocation().getY();
-        var offset = getCurrentLabelValueOffset();
+        var labelSize = getCurrentLabelValueOffset();
+        var horizontalOffset = 0;
+
+        if (config.textType()==OverlayTextType.LONG) {
+            horizontalOffset=-6;
+        }
 
         for (Entry<PlankTier, Integer> nextPlank : currentSack) {
             var label = getOverlayLabelByConfig(nextPlank.getKey());
             if (label.isEmpty()) label=null;
             var image = config.showOverlayIcons()?(getIconForTier(nextPlank.getKey())):null;
-            drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(),x,y+=12, offset);
+            drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(),x+horizontalOffset,y+=12, labelSize, true);
         }
     }
 
-    private void drawSingleSmallPlankOverlay(Graphics2D graphics, @Nullable BufferedImage icon, @Nullable String label, Font font, Color textColor, Color numberColor, String amount, int x, int y, int labelWidth) {
+    private void drawSingleSmallPlankOverlay(Graphics2D graphics, @Nullable BufferedImage icon, @Nullable String label, Font font, Color textColor, Color numberColor, String amount, int x, int y, int labelWidth, boolean rightJustifyNumber) {
         var runningXOffset = 0;
         graphics.setFont(font);
         int fontHeight = graphics.getFontMetrics(font).getHeight();
@@ -426,14 +437,29 @@ public class PlankSackOverlay extends WidgetItemOverlay {
 
         if (icon!=null) {
             OverlayUtil.renderImageLocation(graphics, new Point(x+runningXOffset, y-fontHeight), icon);
-            runningXOffset+=10;
+            runningXOffset+=5;
         }
+        runningXOffset+=5;
         if (label!=null) {
             drawStringShadowed(graphics, font, label, x+runningXOffset, y, textColor);
+            if (rightJustifyNumber) runningXOffset+=rightJustifyXValue(graphics, runningXOffset, amount);
             drawStringShadowed(graphics, font, amount,x+runningXOffset+labelWidth, y, numberColor);
         } else {
+            if (rightJustifyNumber) runningXOffset+=rightJustifyXValue(graphics, runningXOffset, amount);
             drawStringShadowed(graphics, font, amount,x+runningXOffset+labelWidth, y,  numberColor);
         }
+    }
+
+    private int rightJustifyXValue(Graphics2D graphics, int x, String string) {
+        //return 0;
+        var ret = x;
+        var metrics = graphics.getFontMetrics();
+        for (byte aByte : string.getBytes()) {
+            ret-=metrics.charWidth(aByte);
+            ret+=1;
+        }
+        return ret;
+        //return x-(graphics.getFontMetrics().stringWidth(string)+1);
     }
 
     private void drawStringShadowed(Graphics2D graphics, Font font, String label, int x, int y, Color color) {
@@ -443,12 +469,18 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         graphics.setColor(color);
         graphics.drawString(label, x, y);
     }
+
+    private static final Color slightlyFadedShadowColor = new Color(0f,0f,0f,0.7f);
+    private static final Color fadedShadowColor = new Color(0f,0f,0f,0.45f);
+    private static final Color veryFadedShadowColor = new Color(0f,0f,0f,0.3f);
     private void drawStringThickShadowed(Graphics2D graphics, Font font, String label, int x, int y, Color color) {
-        graphics.setColor(Color.BLACK);
         graphics.setFont(font);
+        graphics.setColor(slightlyFadedShadowColor);
         graphics.drawString(label, x + 1, y + 1);
-        graphics.drawString(label, x + 1, y + 2);
+        graphics.setColor(fadedShadowColor);
         graphics.drawString(label, x + 2, y + 1);
+        graphics.setColor(veryFadedShadowColor);
+        graphics.drawString(label, x + 1, y + 2);
         graphics.drawString(label, x + 2, y + 2);
         graphics.setColor(color);
         graphics.drawString(label, x, y);
@@ -459,9 +491,9 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         switch (config.textType()) {
             case NONE:
                 return 0;
-            case ABBREVIATED:
+            case LETTER:
                 return abbreviatedWidthBuffer;
-            case FULL:
+            case LONG:
                 return nonAbbreviatedWidthBuffer;
             default:
                 return 0;
@@ -472,7 +504,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         switch (config.textType()) {
             case NONE:
                 return "";
-            case ABBREVIATED:
+            case LETTER:
                 switch (tier) {
                     case PLANK:
                         return "P:";
@@ -489,22 +521,22 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                     case CAMPHOR:
                         return "C:";
                 }
-            case FULL:
+            case LONG:
                 switch (tier) {
                     case PLANK:
-                        return "Planks:\t";
+                        return "Plank:\t";
                     case OAK:
-                        return "Oaks:\t";
+                        return "Oak:\t";
                     case TEAK:
-                        return "Teaks:\t";
+                        return "Teak:\t";
                     case MAHOGANY:
-                        return "Mahogany:\t";
+                        return "Mahog:\t";
                     case ROSEWOOD:
-                        return "Rosewood:\t";
+                        return "Rose:\t";
                     case IRONWOOD:
-                        return "Ironwood:\t";
+                        return "Iron:\t";
                     case CAMPHOR:
-                        return "Camphor:\t";
+                        return "Camph:\t";
                 }
         }
         return "";
@@ -531,5 +563,27 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                 return plankImage;
         }
     }
+
+    private void drawStackedPlankIcons(Graphics2D graphics, int x, int y, PlankStorageSet planks) {
+        var numDone = 0;
+        var types = planks.countTypes();
+        if (types>3) y-=6;
+        for (Entry<PlankTier, Integer> plank : planks) {
+            var tier = plank.getKey();
+            var icon = getIconForTier(tier);
+            OverlayUtil.renderImageLocation(graphics, new Point(x, y), icon);
+            x -= 4;
+            numDone++;
+            if (numDone>2) {
+                y+=12;
+                if (types>6) {
+                    x+=14; //Make a little extra space for the 7th plank icon
+                } else {
+                    x+=12;
+                }
+            }
+        }
+    }
+
 
 }
