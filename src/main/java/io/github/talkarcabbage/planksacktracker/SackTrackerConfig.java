@@ -39,7 +39,13 @@ public interface SackTrackerConfig extends Config {
     @ConfigItem(
             keyName = OVERLAY_STYLE,
             name="Overlay style",
-            description = "Change the style of how the overlay renders. The default is dynamic, which changes based on how many different types of planks are in the sack.",
+            description = "Change the style of how the overlay renders. " +
+                    "<br/><br/>" +
+                    "Dynamic (default) - Switch between One Big Number, Vertical, and Horizontal Grid based on how many different types of planks are in the sack.<br/>" +
+                    "Tooltip Only - Disable the overlay; the tooltip will still show when hovering the plank sack.<br/>" +
+                    "One Big Number - Show the entire contents as one large number, with or without icons.<br/>" +
+                    "Vertical - Show each plank in the sack on its own line.<br/>" +
+                    "Vertical/Horizontal Grids - Show the planks in a 2-wide or 2-tall grid. Does not support showing long plank names.",
             position = 3
     )
     default OverlayStyle overlayStyle() {
@@ -58,11 +64,21 @@ public interface SackTrackerConfig extends Config {
     @ConfigItem(
             keyName = PLANK_NAMES,
             name = "Plank name display",
-            description =  "How, and whether, to display the names of each plank in the plank sack on the overlay.",
+            description =  "Change if/how the names of each plank in the plank sack are displayed on the overlay. Affects the vertical display style, and grids if labels for grids are not set to always hidden.",
             position = 5
     )
     default OverlayTextType textType() {
-        return OverlayTextType.LONG;
+        return OverlayTextType.LETTER;
+    }
+
+    @ConfigItem(
+            keyName = ALWAYS_DISABLE_LABELS_IN_GRID,
+            name = "Always hide labels in grids",
+            description =  "Hides labels when using the grid view, regardless of if they are enabled. Only short labels will be used, if enabled, to reduce text overlap.",
+            position = 9
+    )
+    default boolean alwaysDisableLabelsInGrid() {
+        return true;
     }
 
     @ConfigItem(
@@ -88,20 +104,11 @@ public interface SackTrackerConfig extends Config {
     @ConfigItem(
             keyName = ENABLE_ICON_FOR_ONE_BIG_NUMBER,
             name = "Enable icons for One Big Number",
-            description =  "Hides the plank icon for the 'one big number' style even when icons are enabled.",
+            description =  "If this is disabled, the One Big Number style will not show icons, even when icons are enabled.",
             position = 8
     )
     default boolean enableIconOneBigNumber() {
         return true;
     }
 
-    @ConfigItem(
-            keyName = ALWAYS_DISABLE_LABELS_IN_GRID,
-            name = "Always hide labels in grids",
-            description =  "Hides labels when using the grid view, regardless of if they are enabled. Highly recommended to leave on for usability for those display types.",
-            position = 9
-    )
-    default boolean alwaysDisableLabelsInGrid() {
-        return true;
-    }
 }
