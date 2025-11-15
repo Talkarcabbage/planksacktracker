@@ -2,6 +2,7 @@ package io.github.talkarcabbage.planksacktracker;
 
 import com.google.inject.Provides;
 import io.github.talkarcabbage.planksacktracker.overlay.PlankSackOverlay;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankSackManager;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -30,13 +31,10 @@ public class SackTrackerPlugin extends Plugin {
     @Inject
     private TooltipManager tooltipManager;
 
-    public static final String PLUGIN_GROUP_ID = "planksacktracker";
-
     @Override
     protected void startUp() {
-        PlankSackManager sackManager = new PlankSackManager(this);
-
-        overlay = new PlankSackOverlay(this, sackManager, config, client, tooltipManager );
+        PlankSackManager sackManager = new PlankSackManager(client);
+        overlay = new PlankSackOverlay(sackManager, config, client, tooltipManager );
         overlayManager.add(overlay);
     }
 

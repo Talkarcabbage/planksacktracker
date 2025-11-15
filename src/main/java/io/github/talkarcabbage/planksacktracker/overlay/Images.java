@@ -1,6 +1,6 @@
 package io.github.talkarcabbage.planksacktracker.overlay;
 
-import io.github.talkarcabbage.planksacktracker.PlankTier;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankTier;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.util.ImageUtil;

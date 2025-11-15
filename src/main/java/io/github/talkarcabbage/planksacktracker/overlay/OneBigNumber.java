@@ -1,6 +1,10 @@
 package io.github.talkarcabbage.planksacktracker.overlay;
 
 import io.github.talkarcabbage.planksacktracker.*;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankSackManager;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankStorageSet;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankTier;
+import io.github.talkarcabbage.planksacktracker.util.Entry;
 import net.runelite.api.Point;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.ui.FontManager;
@@ -12,12 +16,10 @@ import java.awt.image.BufferedImage;
 public class OneBigNumber {
     private final PlankSackManager manager;
     private final SackTrackerConfig config;
-    private final PlankSackOverlay overlayInstance;
 
-    public OneBigNumber(PlankSackManager manager, SackTrackerConfig config, PlankSackOverlay overlayInstance) {
+    public OneBigNumber(PlankSackManager manager, SackTrackerConfig config) {
         this.manager = manager;
         this.config = config;
-        this.overlayInstance = overlayInstance;
     }
 
     public void drawOneBigNumber(Graphics2D graphics, WidgetItem widgetItem) {
@@ -36,9 +38,6 @@ public class OneBigNumber {
             }
         }
         if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
-            if (image!=null && !config.disableIconWhenEmpty() && config.enableIconOneBigNumber()) {
-                OverlayUtil.renderImageLocation(graphics, new Point(startingDrawX+horizontalOffset, startingDrawY-(graphics.getFontMetrics().getHeight()-2)), image);
-            }
             drawBigStringThickShadowed(graphics, FontManager.getRunescapeFont(), "0", startingDrawX+9+horizontalOffset, startingDrawY, config.numberColor());
         } else if (!currentPlankSack.isEmpty()){
             if (image!=null && config.enableIconOneBigNumber()) {

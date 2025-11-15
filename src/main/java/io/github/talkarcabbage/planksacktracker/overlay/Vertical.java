@@ -1,8 +1,8 @@
 package io.github.talkarcabbage.planksacktracker.overlay;
 
-import io.github.talkarcabbage.planksacktracker.Entry;
-import io.github.talkarcabbage.planksacktracker.PlankSackManager;
-import io.github.talkarcabbage.planksacktracker.PlankTier;
+import io.github.talkarcabbage.planksacktracker.util.Entry;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankSackManager;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankTier;
 import io.github.talkarcabbage.planksacktracker.SackTrackerConfig;
 import io.github.talkarcabbage.planksacktracker.overlayenums.OverlayTextType;
 import net.runelite.api.Point;
@@ -20,12 +20,10 @@ import static io.github.talkarcabbage.planksacktracker.overlay.PlankSackOverlay.
 public class Vertical {
     private final PlankSackManager manager;
     private final SackTrackerConfig config;
-    private final PlankSackOverlay overlay;
 
-    public Vertical(PlankSackManager manager, SackTrackerConfig config, PlankSackOverlay overlay) {
+    public Vertical(PlankSackManager manager, SackTrackerConfig config) {
         this.manager = manager;
         this.config = config;
-        this.overlay = overlay;
     }
 
     void drawVertical(Graphics2D graphics, WidgetItem widgetItem) {
@@ -37,7 +35,7 @@ public class Vertical {
         var verticalSpacing = 12;
 
         if (config.textType()== OverlayTextType.LONG) {
-            horizontalOffset += -7;
+            horizontalOffset -= 7;
         }
 
         for (Entry<PlankTier, Integer> nextPlank : currentSack) {
@@ -67,6 +65,8 @@ public class Vertical {
         int fontHeight = graphics.getFontMetrics(font).getHeight();
         if (label!=null && label.isEmpty()) label=null;
 
+        if (label==null) runningXOffset+=7;
+
         if (icon!=null) {
             OverlayUtil.renderImageLocation(graphics, new Point(x+runningXOffset, y-(fontHeight+1)), icon);
             runningXOffset+=6;
@@ -75,7 +75,7 @@ public class Vertical {
         if (label!=null) {
             PlankSackOverlay.drawStringShadowed(graphics, font, label, x+runningXOffset, y, textColor);
         } else {
-            runningXOffset+=16; // Since the number amount right-justifies, if we don't add this it will overlap into the plank icon area.
+            runningXOffset+=10; // Since the number amount right-justifies, if we don't add this it will overlap into the plank icon area.
         }
         runningXOffset-=rightJustifyXValue(graphics, ""+amount);
         PlankSackOverlay.drawStringShadowed(graphics, font, ""+amount,x+runningXOffset+labelWidth, y, numberColor);

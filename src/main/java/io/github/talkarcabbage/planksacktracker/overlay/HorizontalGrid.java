@@ -1,7 +1,10 @@
 package io.github.talkarcabbage.planksacktracker.overlay;
 
 import io.github.talkarcabbage.planksacktracker.*;
-import io.github.talkarcabbage.planksacktracker.overlayenums.OverlayTextType;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankSackManager;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankStorageSet;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankTier;
+import io.github.talkarcabbage.planksacktracker.util.Entry;
 import net.runelite.api.Point;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.ui.FontManager;
@@ -17,12 +20,10 @@ public class HorizontalGrid {
 
     private final PlankSackManager manager;
     private final SackTrackerConfig config;
-    private final PlankSackOverlay overlay;
 
-    public HorizontalGrid(PlankSackManager manager, SackTrackerConfig config, PlankSackOverlay overlay) {
+    public HorizontalGrid(PlankSackManager manager, SackTrackerConfig config) {
         this.manager = manager;
         this.config = config;
-        this.overlay = overlay;
     }
 
     void drawGridHorizontal(Graphics2D graphics, WidgetItem widgetItem) {
@@ -50,7 +51,7 @@ public class HorizontalGrid {
             String label = null;
             BufferedImage image = config.showOverlayIcons()?Images.getIconForTier(nextPlank.getKey()):null;
             if (config.textType()!=NONE && !config.alwaysDisableLabelsInGrid()) {
-                label = overlay.getOverlayTextByConfig(nextPlank.getKey(), currentSack, OverlayTextType.LETTER);
+                label = getOverlayText(nextPlank.getKey());
             }
             if (columnFinished) {
                 drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+widthBetween, y+(rowHeightMultiplier*row), labelWidth);
@@ -61,6 +62,26 @@ public class HorizontalGrid {
                 columnFinished = true;
             }
         }
+    }
+
+    String getOverlayText(PlankTier tier) {
+        switch (tier) {
+            case PLANK:
+                return "P:";
+            case OAK:
+                return "O:";
+            case TEAK:
+                return "T:";
+            case MAHOGANY:
+                return "M:";
+            case ROSEWOOD:
+                return "R:";
+            case IRONWOOD:
+                return "I:";
+            case CAMPHOR:
+                return "C:";
+        }
+        return "";
     }
 
     static protected void drawSingleSmallPlankOverlay(Graphics2D graphics, @Nullable BufferedImage icon, @Nullable String label, Font font, Color textColor, Color numberColor, String amount, int x, int y, int labelWidth) {

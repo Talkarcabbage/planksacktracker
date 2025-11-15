@@ -1,9 +1,11 @@
-package io.github.talkarcabbage.planksacktracker;
+package io.github.talkarcabbage.planksacktracker.planksack;
 
 
+import io.github.talkarcabbage.planksacktracker.util.Entry;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -54,13 +56,11 @@ public class PlankStorageSet implements Iterable<Entry<PlankTier, Integer>>{
         return planks == 0 && oaks == 0 && teaks == 0 && mahoganies == 0 && rosewoods==0&&ironwoods==0&&camphors==0;
     }
 
-    public int getRemainingSackSpace() {
-        return 28-(planks+oaks+teaks+mahoganies+rosewoods+ironwoods+camphors);
-    }
-
-    public String toPrintableString() {
+    @Override
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         boolean comma = false;
+        sb.append("[");
         if (planks!=0) {
             sb.append(planks).append(" planks");
             comma=true;
@@ -94,18 +94,7 @@ public class PlankStorageSet implements Iterable<Entry<PlankTier, Integer>>{
             if (comma) sb.append(", ");
             sb.append(camphors).append(" camphor planks");
         }
-        return sb.toString();
-    }
-
-    public String toOverlayString() {
-        var sb = new StringBuilder();
-        if (planks!=0) sb.append(planks).append(" plank\n");
-        if (oaks!=0) sb.append(oaks).append(" oak\n");
-        if (teaks!=0) sb.append(teaks).append(" teak\n");
-        if (mahoganies!=0) sb.append(mahoganies).append(" mahogany\n");
-        if (rosewoods!=0) sb.append(rosewoods).append(" rosewood\n");
-        if (ironwoods!=0) sb.append(ironwoods).append(" ironwood\n");
-        if (camphors!=0) sb.append(camphors).append(" camphor");
+        sb.append("]");
         return sb.toString();
     }
 
@@ -140,10 +129,10 @@ public class PlankStorageSet implements Iterable<Entry<PlankTier, Integer>>{
             default: return 0;
         }
     }
+    @Nonnull
     @Override
     public Iterator<Entry<PlankTier, Integer>> iterator() {
         List<Entry<PlankTier, Integer>> nonZeroEntries = new ArrayList<>();
-
         addToIteratorIfPresent(nonZeroEntries, PlankTier.PLANK, planks);
         addToIteratorIfPresent(nonZeroEntries, PlankTier.OAK, oaks);
         addToIteratorIfPresent(nonZeroEntries, PlankTier.TEAK, teaks);
@@ -151,7 +140,6 @@ public class PlankStorageSet implements Iterable<Entry<PlankTier, Integer>>{
         addToIteratorIfPresent(nonZeroEntries, PlankTier.ROSEWOOD, rosewoods);
         addToIteratorIfPresent(nonZeroEntries, PlankTier.IRONWOOD, ironwoods);
         addToIteratorIfPresent(nonZeroEntries, PlankTier.CAMPHOR, camphors);
-
         return nonZeroEntries.iterator();
     }
 

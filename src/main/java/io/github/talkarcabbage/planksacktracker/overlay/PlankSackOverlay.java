@@ -1,26 +1,23 @@
 package io.github.talkarcabbage.planksacktracker.overlay;
 
-import io.github.talkarcabbage.planksacktracker.*;
-import io.github.talkarcabbage.planksacktracker.overlayenums.OverlayTextType;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankSackManager;
+import io.github.talkarcabbage.planksacktracker.SackTrackerConfig;
+import io.github.talkarcabbage.planksacktracker.overlayenums.OverlayStyle;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Point;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.ui.FontManager;
-import net.runelite.client.ui.overlay.OverlayUtil;
 import net.runelite.client.ui.overlay.WidgetItemOverlay;
 import net.runelite.client.ui.overlay.tooltip.TooltipManager;
 
-import javax.annotation.Nullable;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 @Slf4j
 public class PlankSackOverlay extends WidgetItemOverlay {
     private final SackTrackerConfig config;
     private final PlankSackManager manager;
-    private final SackTrackerPlugin trackerPlugin;
 
     // Overlay styles
     private final OneBigNumber oneBigNumber;
@@ -35,21 +32,17 @@ public class PlankSackOverlay extends WidgetItemOverlay {
     public static final int NON_ABBREVIATED_WIDTH_BUFFER = 49; // Used to set spacing for long text overlays
     private final Client client;
 
-    TooltipManager tooltipManager;
-
-    public PlankSackOverlay(SackTrackerPlugin plugin, PlankSackManager sackManager, SackTrackerConfig config, Client client, TooltipManager tooltipManager) {
-        this.trackerPlugin = plugin;
+    public PlankSackOverlay(PlankSackManager sackManager, SackTrackerConfig config, Client client, TooltipManager tooltipManager) {
         this.config = config;
         this.manager = sackManager;
         this.client = client;
-        this.tooltipManager = tooltipManager;
         showOnInventory();
 
-        oneBigNumber = new OneBigNumber(sackManager, config, this);
-        horizontalGrid = new HorizontalGrid(sackManager, config, this);
-        verticalGrid = new VerticalGrid(sackManager, config, this);
-        vertical = new Vertical(sackManager, config, this);
-        tooltip = new SackTooltip(sackManager, tooltipManager, this);
+        oneBigNumber = new OneBigNumber(sackManager, config);
+        horizontalGrid = new HorizontalGrid(sackManager, config);
+        verticalGrid = new VerticalGrid(sackManager, config);
+        vertical = new Vertical(sackManager, config);
+        tooltip = new SackTooltip(sackManager, tooltipManager, config);
     }
 
     @Override
@@ -58,7 +51,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         var currentPlankSack = manager.getCurrentPlankSack();
         graphics.setFont(FontManager.getRunescapeSmallFont());
 
-        if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
+        if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty() && config.overlayStyle()!= OverlayStyle.TOOLTIP_ONLY) {
             oneBigNumber.drawOneBigNumber(graphics, widgetItem);
         } else {
 
@@ -82,83 +75,13 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                     break;
             }
         }
-        if (isHovered(widgetItem, client.getMouseCanvasPosition())) {
-            tooltip.renderTooltip(graphics, itemId, widgetItem);
+        if (config.enableTooltip() && isHovered(widgetItem, client.getMouseCanvasPosition())) {
+            tooltip.renderTooltip();
         }
     }
 
     private boolean isHovered(WidgetItem widgetItem, Point mousePosition) {
         return (widgetItem.getCanvasBounds().contains(mousePosition.getX(), mousePosition.getY()));
-    }
-
-    //Commonly shared method for getting overlay text used in other overlays
-    String getOverlayTextFull(PlankTier tier, PlankStorageSet storage) {
-        switch (tier) {
-            case PLANK:
-                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Basic planks");
-            case OAK:
-                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Oak planks");
-            case TEAK:
-                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Teak planks");
-            case MAHOGANY:
-                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Mahogany planks");
-            case ROSEWOOD:
-                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Rosewood planks");
-            case IRONWOOD:
-                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Ironwood planks");
-            case CAMPHOR:
-                return Utils.white(padTwo(storage.getTierAmount(tier))) + Utils.yellow(" Camphor planks");
-        }
-        return "";
-    }
-
-    private String padTwo(int number) {
-        if (number<9) return number+" ";
-        return number+"";
-    }
-
-    String getOverlayTextByConfig(PlankTier tier, PlankStorageSet storage, @Nullable OverlayTextType textType) {
-        var type = config.textType();
-        if (textType!=null) type=textType;
-        switch (type) {
-            case NONE:
-                return "";
-            case LETTER:
-                switch (tier) {
-                    case PLANK:
-                        return "P:";
-                    case OAK:
-                        return "O:";
-                    case TEAK:
-                        return "T:";
-                    case MAHOGANY:
-                        return "M:";
-                    case ROSEWOOD:
-                        return "R:";
-                    case IRONWOOD:
-                        return "I:";
-                    case CAMPHOR:
-                        return "C:";
-                }
-            case LONG:
-                switch (tier) {
-                    case PLANK:
-                        return "Planks:\t";
-                    case OAK:
-                        return "Oaks:\t";
-                    case TEAK:
-                        return "Teaks:\t";
-                    case MAHOGANY:
-                        return "Mahogany:\t";
-                    case ROSEWOOD:
-                        return "Rosewood:\t";
-                    case IRONWOOD:
-                        return "Ironwood:\t";
-                    case CAMPHOR:
-                        return "Camphor:\t";
-                }
-        }
-        return "";
     }
 
     private void drawDynamic(Graphics2D graphics, WidgetItem widgetItem) {

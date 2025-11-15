@@ -1,7 +1,10 @@
 package io.github.talkarcabbage.planksacktracker.overlay;
 
 import io.github.talkarcabbage.planksacktracker.*;
-import io.github.talkarcabbage.planksacktracker.overlayenums.OverlayTextType;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankSackManager;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankStorageSet;
+import io.github.talkarcabbage.planksacktracker.planksack.PlankTier;
+import io.github.talkarcabbage.planksacktracker.util.Entry;
 import net.runelite.api.Point;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.ui.FontManager;
@@ -16,15 +19,13 @@ import static io.github.talkarcabbage.planksacktracker.overlayenums.OverlayTextT
 public class VerticalGrid {
     private final PlankSackManager manager;
     private final SackTrackerConfig config;
-    private final PlankSackOverlay overlay;
 
     private static final int INITIAL_X_OFFSET = -2;
     private static final int INITIAL_Y_OFFSET = 12;
 
-    public VerticalGrid(PlankSackManager manager, SackTrackerConfig config, PlankSackOverlay overlay) {
+    public VerticalGrid(PlankSackManager manager, SackTrackerConfig config) {
         this.manager = manager;
         this.config = config;
-        this.overlay = overlay;
     }
 
     void drawGridVertical(Graphics2D graphics, WidgetItem widgetItem) {
@@ -50,7 +51,7 @@ public class VerticalGrid {
             String label = null;
             BufferedImage image = config.showOverlayIcons()?Images.getIconForTier(nextPlank.getKey()):null;
             if (config.textType()!=NONE && !config.alwaysDisableLabelsInGrid()) {
-                label = getOverlayTextByConfig(nextPlank.getKey());
+                label = getGridOverlayTextByConfig(nextPlank.getKey());
             }
             if (rowFinished) {
                 drawSingleSmallPlankOverlay(graphics, image, label, font, config.textColor(), config.numberColor(), ""+nextPlank.getValue(), x+(widthBetween*column), y+18, labelWidth);
@@ -80,7 +81,7 @@ public class VerticalGrid {
         PlankSackOverlay.drawStringShadowed(graphics, font, amount,x+runningXOffset+labelWidth, y, numberColor);
     }
 
-    private String getOverlayTextByConfig(PlankTier tier) {
+    private String getGridOverlayTextByConfig(PlankTier tier) {
         switch (tier) {
             case PLANK:
                 return "P:";

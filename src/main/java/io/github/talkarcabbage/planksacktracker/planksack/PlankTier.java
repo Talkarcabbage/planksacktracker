@@ -1,4 +1,4 @@
-package io.github.talkarcabbage.planksacktracker;
+package io.github.talkarcabbage.planksacktracker.planksack;
 
 public enum PlankTier {
     PLANK,
