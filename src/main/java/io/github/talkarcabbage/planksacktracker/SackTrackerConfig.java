@@ -53,9 +53,10 @@ public interface SackTrackerConfig extends Config {
             name="Overlay style",
             description = "Change the style of how the overlay renders. " +
                     "<br/><br/>" +
-                    "Dynamic (default) - Switch between One Big Number, Vertical, and Horizontal Grid based on how many different types of planks are in the sack.<br/>" +
-                    "Tooltip Only (disable overlay) - Disable the overlay; the tooltip will still show when hovering the plank sack. This also disables showing a 0 when empty, even if that setting is enabled.<br/>" +
+                    "Dynamic (default) - Switch between One Big Number/Vertical/Horizontal Grid based on how many different types of planks are in the sack.<br/>" +
+                    "Tooltip Only (disable overlay) - Disable the overlay; the tooltip will still show when hovering the plank sack.<br/>" +
                     "One Big Number - Show the entire contents as one large number, with or without icons.<br/>" +
+                    "One Small Number - Show the entire contents as one small number on the bottom left corner, with or without icons.<br/>" +
                     "Vertical - Show each plank in the sack on its own line.<br/>" +
                     "Vertical/Horizontal Grids - Show the planks in a 2-wide or 2-tall grid. Does not support showing long plank names.",
             position = 3,

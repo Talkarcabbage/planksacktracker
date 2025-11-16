@@ -24,6 +24,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
     private final HorizontalGrid horizontalGrid;
     private final VerticalGrid verticalGrid;
     private final Vertical vertical;
+    private final OneSmallNumber oneSmallNumber;
 
     //Tooltip renderer
     private final SackTooltip tooltip;
@@ -43,6 +44,7 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         verticalGrid = new VerticalGrid(sackManager, config);
         vertical = new Vertical(sackManager, config);
         tooltip = new SackTooltip(sackManager, tooltipManager, config);
+        oneSmallNumber = new OneSmallNumber(sackManager, config);
     }
 
     @Override
@@ -52,7 +54,11 @@ public class PlankSackOverlay extends WidgetItemOverlay {
         graphics.setFont(FontManager.getRunescapeSmallFont());
 
         if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty() && config.overlayStyle()!= OverlayStyle.TOOLTIP_ONLY) {
-            oneBigNumber.drawOneBigNumber(graphics, widgetItem);
+            if (config.overlayStyle()==OverlayStyle.ONE_SMALL_NUMBER) {
+                oneSmallNumber.drawOneSmallNumber(graphics, widgetItem);
+            } else {
+                oneBigNumber.drawOneBigNumber(graphics, widgetItem);
+            }
         } else {
 
             switch (config.overlayStyle()) {
@@ -60,6 +66,9 @@ public class PlankSackOverlay extends WidgetItemOverlay {
                     break;
                 case ONE_BIG_NUMBER:
                     oneBigNumber.drawOneBigNumber(graphics, widgetItem);
+                    break;
+                case ONE_SMALL_NUMBER:
+                    oneSmallNumber.drawOneSmallNumber(graphics, widgetItem);
                     break;
                 case DYNAMIC:
                     drawDynamic(graphics, widgetItem);
