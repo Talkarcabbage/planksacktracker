@@ -66,20 +66,12 @@ public interface SackTrackerConfig extends Config {
         return OverlayStyle.DYNAMIC;
     }
 
-    @ConfigItem(
-            keyName = PLANK_ICONS,
-            name="Show overlay plank icons",
-            description = "Enable or disable the plank icons on the overlay.",
-            position = 4,
-            section=overlaySettings
-    )
-    default boolean showOverlayIcons() { return true; }
 
 
     @ConfigSection(
             name = "Style Tweaks",
             description = "Teaks that apply to specific overlay styles",
-            position = 5
+            position = 4
     )
     String styleTweaks = "styleTweaks";
 
@@ -87,7 +79,7 @@ public interface SackTrackerConfig extends Config {
             keyName = PLANK_NAMES,
             name = "Plank name display",
             description =  "Change if/how the names of each plank in the plank sack are displayed on the overlay. Affects the vertical display style, and grids if labels for grids are not set to always hidden.",
-            position = 6,
+            position = 5,
             section=styleTweaks
     )
     default OverlayTextType textType() {
@@ -98,7 +90,7 @@ public interface SackTrackerConfig extends Config {
             keyName = ALWAYS_DISABLE_LABELS_IN_GRID,
             name = "Always hide labels in grids",
             description =  "Hides labels when using the grid view, regardless of if they are enabled. Only short labels will be used, if enabled, to reduce text overlap.",
-            position = 7,
+            position = 6,
             section=styleTweaks
     )
     default boolean alwaysDisableLabelsInGrid() {
@@ -109,7 +101,7 @@ public interface SackTrackerConfig extends Config {
             keyName = DISPLAY_ZERO,
             name = "Display zero when empty",
             description =  "If enabled, displays a zero on the overlay when the sack is empty.",
-            position = 8,
+            position = 7,
             section=styleTweaks
     )
     default boolean displayZeroWhenEmpty() {
@@ -117,8 +109,17 @@ public interface SackTrackerConfig extends Config {
     }
 
     @ConfigItem(
+            keyName = PLANK_ICONS,
+            name="Show overlay plank icons",
+            description = "Enable or disable the plank icons on the overlay.",
+            position = 8,
+            section=styleTweaks
+    )
+    default boolean showOverlayIcons() { return true; }
+
+    @ConfigItem(
             keyName = ENABLE_ICON_FOR_ONE_NUMBER,
-            name = "Show icons for One Number styles",
+            name = "Show One Big/Small Number icons",
             description =  "If this is disabled, the One Big Number and One Small Number styles will not show icons, even if icons are enabled.",
             position = 9,
             section=styleTweaks
