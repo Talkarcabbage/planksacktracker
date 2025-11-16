@@ -18,7 +18,7 @@ public interface SackTrackerConfig extends Config {
     String OVERLAY_STYLE = "overlaystyle";
     String PLANK_NAMES = "planknames";
     String DISPLAY_ZERO = "displayzerowhenempty";
-    String ENABLE_ICON_FOR_ONE_BIG_NUMBER = "disableonebignumbericon";
+    String ENABLE_ICON_FOR_ONE_NUMBER = "disableonebignumbericon";
     String ALWAYS_DISABLE_LABELS_IN_GRID = "disablelabelsingrid";
     String TOOLTIP_TEXT_COLOR = "tooltiptextcolor";
     String TOOLTIP_NUMBER_COLOR = "tooltipnumbercolor";
@@ -76,12 +76,19 @@ public interface SackTrackerConfig extends Config {
     default boolean showOverlayIcons() { return true; }
 
 
+    @ConfigSection(
+            name = "Style Tweaks",
+            description = "Teaks that apply to specific overlay styles",
+            position = 5
+    )
+    String styleTweaks = "styleTweaks";
+
     @ConfigItem(
             keyName = PLANK_NAMES,
             name = "Plank name display",
             description =  "Change if/how the names of each plank in the plank sack are displayed on the overlay. Affects the vertical display style, and grids if labels for grids are not set to always hidden.",
-            position = 5,
-            section=overlaySettings
+            position = 6,
+            section=styleTweaks
     )
     default OverlayTextType textType() {
         return OverlayTextType.LETTER;
@@ -91,8 +98,8 @@ public interface SackTrackerConfig extends Config {
             keyName = ALWAYS_DISABLE_LABELS_IN_GRID,
             name = "Always hide labels in grids",
             description =  "Hides labels when using the grid view, regardless of if they are enabled. Only short labels will be used, if enabled, to reduce text overlap.",
-            position = 6,
-            section=overlaySettings
+            position = 7,
+            section=styleTweaks
     )
     default boolean alwaysDisableLabelsInGrid() {
         return true;
@@ -101,30 +108,29 @@ public interface SackTrackerConfig extends Config {
     @ConfigItem(
             keyName = DISPLAY_ZERO,
             name = "Display zero when empty",
-            description =  "If true, displays a zero on the overlay when the sack is empty.",
-            position = 7,
-            section=overlaySettings
+            description =  "If enabled, displays a zero on the overlay when the sack is empty.",
+            position = 8,
+            section=styleTweaks
     )
     default boolean displayZeroWhenEmpty() {
         return true;
     }
 
-
     @ConfigItem(
-            keyName = ENABLE_ICON_FOR_ONE_BIG_NUMBER,
-            name = "Enable icons for One Big Number",
-            description =  "If this is disabled, the One Big Number style will not show icons, even when icons are enabled.",
-            position = 8,
-            section=overlaySettings
+            keyName = ENABLE_ICON_FOR_ONE_NUMBER,
+            name = "Show icons for One Number styles",
+            description =  "If this is disabled, the One Big Number and One Small Number styles will not show icons, even if icons are enabled.",
+            position = 9,
+            section=styleTweaks
     )
-    default boolean enableIconOneBigNumber() {
+    default boolean enableIconOneNumber() {
         return true;
     }
 
     @ConfigSection(
             name = "Tooltip",
             description = "Settings for the tooltip, shown when hovering on the plank sack.",
-            position = 9,
+            position = 10,
             closedByDefault = true
     )
     String tooltipSettings = "tooltipsettings";
@@ -133,7 +139,7 @@ public interface SackTrackerConfig extends Config {
             keyName = TOOLTIP_TEXT_COLOR,
             name = "Tooltip text color",
             description =  "The color of the plank name in the tooltip, shown when hovering on the plank sack, if enabled.",
-            position = 10,
+            position = 11,
             section=tooltipSettings
     )
     default Color tooltipTextColor() {
@@ -144,7 +150,7 @@ public interface SackTrackerConfig extends Config {
             keyName = TOOLTIP_NUMBER_COLOR,
             name = "Tooltip number color",
             description =  "The color of the quantity of each plank in the tooltip, shown when hovering on the plank sack, if enabled.",
-            position = 11,
+            position = 12,
             section=tooltipSettings
     )
     default Color tooltipNumberColor() {
@@ -155,7 +161,7 @@ public interface SackTrackerConfig extends Config {
             keyName = ENABLE_TOOLTIP,
             name = "Show tooltip",
             description =  "When enabled, display a tooltip when hovering on the plank sack listing the current contents.",
-            position = 12,
+            position = 13,
             section=tooltipSettings
     )
     default boolean enableTooltip() {

@@ -40,7 +40,7 @@ public class OneBigNumber {
         if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
             drawBigStringThickShadowed(graphics, FontManager.getRunescapeFont(), "0", startingDrawX+9+horizontalOffset, startingDrawY, config.numberColor());
         } else if (!currentPlankSack.isEmpty()){
-            if (image!=null && config.enableIconOneBigNumber()) {
+            if (image!=null && config.enableIconOneNumber()) {
                 drawStackedPlankIcons(graphics, startingDrawX+horizontalOffset, startingDrawY-(graphics.getFontMetrics().getHeight()-2), currentPlankSack) ;
             }
             drawBigStringThickShadowed(graphics, FontManager.getRunescapeFont(), ""+currentPlankSack.getTotalPlanks(), startingDrawX+9+horizontalOffset, startingDrawY, config.numberColor());

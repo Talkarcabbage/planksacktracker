@@ -43,7 +43,7 @@ public class OneSmallNumber {
         if (currentPlankSack.isEmpty() && config.displayZeroWhenEmpty()) {
             drawString(graphics, FontManager.getRunescapeSmallFont(), "0", startingDrawX+9+horizontalOffset, startingDrawY, config.numberColor());
         } else if (!currentPlankSack.isEmpty()){
-            if (image!=null && config.enableIconOneBigNumber()) {
+            if (image!=null && config.enableIconOneNumber()) {
                 drawStackedPlankIcons(graphics, startingDrawX+horizontalOffset+20, startingDrawY-(graphics.getFontMetrics().getHeight()+13), currentPlankSack) ;
             }
             drawString(graphics, FontManager.getRunescapeSmallFont(), ""+currentPlankSack.getTotalPlanks(), startingDrawX+9+horizontalOffset, startingDrawY, config.numberColor());
